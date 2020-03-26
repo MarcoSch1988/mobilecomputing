@@ -1,134 +1,144 @@
 <template>
-  <q-page class="flex flex-center q-py-sm">
+  <q-page class="flex q-py-sm">
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
-        <q-card square class="shadow-24">
-          <q-card-section class="bg-primary">
-            <h4 class="text-h5 text-white q-my-md">Registration</h4>
-            <div class="absolute-bottom-right q-pr-md" style="transform: translateY(50%);">
-              <!-- <q-btn fab icon="close" color="purple-4" /> -->
-            </div>
-          </q-card-section>
-          <q-card-section>
-            <q-form class="q-px-sm q-pt-l q-pb-lg" ref="signUpForm">
-              <q-input
-                square
-                clearable
-                v-model="registrationData.email"
-                type="email"
-                label="Email"
-                :rules="[val=>!!val|| 'EMail is Missing', isValidEmail]"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="email" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                clearable
-                v-model="registrationData.firstname"
-                type="text"
-                label="Vorname"
-                :rules="[is3Chars]"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                clearable
-                v-model="registrationData.surname"
-                type="text"
-                label="Nachname"
-                :rules="[is3Chars]"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="person" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                clearable
-                v-model="registrationData.company"
-                type="text"
-                label="Firma"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="business" />
-                </template>
-              </q-input>
-              <q-input
-                square
-                v-model="registrationData.password"
-                :type="isPasswordVisible ? 'text' : 'password'"
-                label="Password"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock" />
-                </template>
-                <template v-slot:append>
-                  <q-btn
-                    round
-                    dense
-                    flat
-                    tabindex="-1"
-                    :icon="isPasswordVisible ? 'visibility' : 'visibility_off'"
-                    @click="isPasswordVisible = !isPasswordVisible"
-                  />
-                </template>
-              </q-input>
-              <q-input
-                square
-                v-model="registrationData.passwordRepeat"
-                :type="isPasswordVisible ? 'text' : 'password'"
-                label="Repeat password"
-                :rules="[
+        <q-form class="q-px-sm q-pt-lg q-pb-xs row items-start" ref="signUpForm">
+          <!-- zu class hinzufügen für gewrappte elemente:  -->
+          <q-input
+            square
+            clearable
+            style="width:100%"
+            v-model="registrationData.email"
+            type="text"
+            label="Benutzername"
+          >
+            <template v-slot:prepend>
+              <q-icon name="person" />
+            </template>
+          </q-input>
+          <q-input
+            square
+            clearable
+            style="width:100%"
+            v-model="registrationData.firstname"
+            type="text"
+            label="Vorname"
+          >
+            <template v-slot:prepend>
+              <q-icon name="person" />
+            </template>
+          </q-input>
+          <q-input
+            square
+            clearable
+            style="width:100%"
+            v-model="registrationData.surname"
+            type="text"
+            label="Nachname"
+          >
+            <template v-slot:prepend>
+              <q-icon name="person" />
+            </template>
+          </q-input>
+          <q-input
+            square
+            clearable
+            style="width:33%"
+            class="q-mr-sm"
+            v-model="registrationData.plz"
+            type="text"
+            label="PLZ"
+          >
+            <template v-slot:prepend>
+              <q-icon name="location_on" />
+            </template>
+          </q-input>
+          <q-input square clearable v-model="registrationData.city" type="text" label="Ort">
+            <template v-slot:prepend>
+              <q-icon name="location_on" />
+            </template>
+          </q-input>
+          <q-input
+            square
+            clearable
+            style="width:100%"
+            v-model="registrationData.street"
+            type="text"
+            label="Straße + Nr."
+          >
+            <template v-slot:prepend>
+              <q-icon name="location_on" />
+            </template>
+          </q-input>
+          <q-input
+            square
+            style="width:100%"
+            v-model="registrationData.password"
+            :type="isPasswordVisible ? 'text' : 'password'"
+            label="Passwort"
+          >
+            <template v-slot:prepend>
+              <q-icon name="lock" />
+            </template>
+            <template v-slot:append>
+              <q-btn
+                round
+                dense
+                flat
+                tabindex="-1"
+                :icon="isPasswordVisible ? 'visibility' : 'visibility_off'"
+                @click="isPasswordVisible = !isPasswordVisible"
+              />
+            </template>
+          </q-input>
+          <q-input
+            square
+            style="width:100%"
+            v-model="registrationData.passwordRepeat"
+            :type="isPasswordVisible ? 'text' : 'password'"
+            label="Passwort*"
+            :rules="[
                   value =>
                     value === registrationData.password ||
-                    'Passwords must match'
+                    'Passwords müssen übereinstimmen'
                 ]"
-              >
-                <template v-slot:prepend>
-                  <q-icon name="lock" />
-                </template>
-                <template v-slot:append>
-                  <q-btn
-                    round
-                    dense
-                    flat
-                    tabindex="-1"
-                    :icon="isPasswordVisible ? 'visibility' : 'visibility_off'"
-                    @click="isPasswordVisible = !isPasswordVisible"
-                  />
-                </template>
-              </q-input>
-            </q-form>
-            <p
-              v-if="this.registrationErrorMessage!=''"
-              class="text-red"
-              style="text-align: center"
-            >{{registrationErrorMessage}}</p>
-            <p
-              v-if="this.registrationSuccessful===true"
-              class="text-green"
-              style="text-align: center"
-            >Registration successful</p>
-          </q-card-section>
-          <q-card-actions class="q-px-lg">
-            <q-btn
-              unelevated
-              size="lg"
-              color="primary"
-              class="full-width text-white"
-              label="Register"
-              @click="signUp()"
-            />
-          </q-card-actions>
-          <q-card-section class="text-center q-pa-m">
-            <q-btn flat color="grey" label="Return to Login" to="/login" />
-          </q-card-section>
-        </q-card>
+          >
+            <template v-slot:prepend>
+              <q-icon name="lock" />
+            </template>
+            <template v-slot:append>
+              <q-btn
+                round
+                dense
+                flat
+                tabindex="-1"
+                :icon="isPasswordVisible ? 'visibility' : 'visibility_off'"
+                @click="isPasswordVisible = !isPasswordVisible"
+              />
+            </template>
+          </q-input>
+          <p
+            v-if="this.registrationErrorMessage!=''"
+            class="text-red"
+            style="text-align: center"
+          >{{registrationErrorMessage}}</p>
+          <p
+            v-if="this.registrationSuccessful===true"
+            class="text-green"
+            style="text-align: center"
+          >Registration successful</p>
+          <q-btn
+            unelevated
+            size="lg"
+            color="primary"
+            class="full-width text-white"
+            label="Register"
+            @click="signUp()"
+          />
+          <q-btn class="full-width q-mt-md" flat color="grey" label="Return to Login" to="/login" />
+        </q-form>
+        <q-img src="../statics/friends.svg" />
+        <!-- class="footerback" -->
       </div>
     </div>
   </q-page>
@@ -185,3 +195,14 @@ export default {
   }
 };
 </script>
+
+<style lang="sass" scoped>
+.footerback
+  opacity: 0.4
+  width: 80%
+  position: absolute
+  left: 10%
+  bottom: 10px
+  background-repeat: no-repeat
+  filter: alpha(opacity=25) progid:DXImageTransform.Microsoft.Alpha(opacity=25)
+</style>
