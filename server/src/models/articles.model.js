@@ -1,19 +1,17 @@
-// users-model.js - A mongoose model
+// articles-model.js - A mongoose model
 //
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
 module.exports = function(app) {
-  const modelName = "users";
+  const modelName = "articles";
   const mongooseClient = app.get("mongooseClient");
-  const schema = new mongooseClient.Schema(
+  const { Schema } = mongooseClient;
+  const schema = new Schema(
     {
-      username: { type: String, unique: true, lowercase: true, required: true },
-      firstname: { type: String, required: true },
-      surname: { type: String, required: true },
-      plz: { type: String, required: true },
-      city: { type: String, required: true },
-      street: { type: String, required: true },
-      password: { type: String }
+      ordererId: { type: Schema.Types.ObjectId, ref: "users" },
+      buyerId: { type: Schema.Types.ObjectId, ref: "users" },
+      status: { type: String, required: true, default: "open" },
+      text: { type: String, required: true }
     },
     {
       timestamps: true

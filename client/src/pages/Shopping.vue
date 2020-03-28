@@ -3,20 +3,24 @@
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
         <q-list>
-          <div v-for="shoppingList in shoppingLists" :key="shoppingList.id">
+          <div v-for="article in articles" :key="article.id">
             <q-expansion-item>
               <template v-slot:header>
-                <q-checkbox v-model="shoppingList.isSelected" />
+                <q-checkbox v-model="article.isSelected" />
 
                 <q-item-section class="q-pl-lg">
-                  <q-item-label>{{shoppingList.besteller}}</q-item-label>
-                  <q-item-label caption>Artikelanzahl: {{shoppingList.anzahl}}</q-item-label>
+                  <q-item-label>{{ article.name }}</q-item-label>
+                  <q-item-label caption>Artikelanzahl: {{ article.count }}</q-item-label>
                 </q-item-section>
               </template>
               <q-list>
-                <q-item dense v-for="item in shoppingList.items" :key="item.text">
+                <q-item dense v-for="item in article.items" :key="item._id">
                   <q-item-section>&nbsp;</q-item-section>
-                  <q-item-section side class="text-black q-mr-md">{{item.text}}</q-item-section>
+                  <q-item-section side class="text-black q-mr-md">
+                    {{
+                    item.text
+                    }}
+                  </q-item-section>
                 </q-item>
               </q-list>
             </q-expansion-item>
@@ -28,7 +32,7 @@
           color="primary"
           size="lg"
           label="Einkaufen"
-          @click="showList()"
+          @click="loadItems()"
         />
       </div>
       <q-img src="../statics/cart.svg" class="footerback" />
@@ -43,7 +47,7 @@ export default {
   name: "CreateList",
   data() {
     return {
-      newArticle: "",
+      articles: [],
       shoppingLists: [
         {
           id: 0,
@@ -76,7 +80,7 @@ export default {
           ]
         },
         {
-          id: 2,
+          id: 4,
           isSelected: false,
           besteller: "Daniel Lintschinger",
           anzahl: 2,
@@ -102,22 +106,38 @@ export default {
       ]
     };
   },
+  mounted() {
+    this.loadItems();
+  },
   methods: {
-    addItem() {
-      console.log(this.shoppingItems.length);
-      this.shoppingItems.push({
-        id: this.shoppingItems.length,
-        text: this.newArticle
+    loadItems() {
+      this.$feathers
+        .service("articles")
+        .find({ query: { status: "open" } })
+        .then(result => {
+          this.articles = this.arraymap(result.data);
+          console.log(this.articles);
+        });
+    },
+    arraymap(myarray) {
+      let arraymap = {};
+      myarray.map(x => {
+        if (arraymap[x.ordererId] == undefined) {
+          //Noch nicht enthalten
+          arraymap[x.ordererId] = {
+            name: x.orderer.firstname + " " + x.orderer.surname,
+            id: x.ordererId,
+            isSelected: false,
+            count: 0,
+            items: []
+          };
+        }
+        //Daten einfügen
+        arraymap[x.ordererId].count++;
+        arraymap[x.ordererId].items.push(x);
       });
-      this.newArticle = "";
-      console.log(this.shoppingItems);
-    },
-    deleteItem(itemId) {
-      console.log(itemId);
-      this.shoppingItems = this.shoppingItems.filter(obj => obj.id != itemId);
-    },
-    showList() {
-      console.log(this.shoppingLists);
+
+      return arraymap;
     }
   }
 };

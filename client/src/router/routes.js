@@ -1,4 +1,17 @@
-import User from "../stores/userStore";
+function isLoggedIn(to, from, next) {
+  //Überprüfen ob ein JWT gestezt ist, also der Benutzer eingeloggt ist.
+  //Sollte jemand einen ungültigen JWT erzeugen um ungültig Zugang zu erhalten,
+  //erhält er vom Backend keine Daten --> Das hier ist also nicht wirklich zur Sicherheit
+  //Sondern nur für den "komfort"
+  if (localStorage.getItem("feathers-jwt") == null) {
+    next({
+      path: "/login",
+      params: { nextUrl: to.fullPath }
+    });
+  } else {
+    next();
+  }
+}
 
 const routes = [
   {
@@ -8,7 +21,8 @@ const routes = [
       {
         path: "",
         name: "home",
-        component: () => import("pages/Index.vue")
+        component: () => import("pages/Index.vue"),
+        beforeEnter: isLoggedIn
       },
       {
         path: "/register",
@@ -23,17 +37,20 @@ const routes = [
       {
         path: "/checkout",
         name: "checkout",
-        component: () => import("pages/Checkout.vue")
+        component: () => import("pages/Checkout.vue"),
+        beforeEnter: isLoggedIn
       },
       {
-        path: "/createlist",
-        name: "createlist",
-        component: () => import("pages/CreateList.vue")
+        path: "/order",
+        name: "order",
+        component: () => import("pages/Order.vue"),
+        beforeEnter: isLoggedIn
       },
       {
         path: "/shopping",
         name: "shopping",
-        component: () => import("pages/Shopping.vue")
+        component: () => import("pages/Shopping.vue"),
+        beforeEnter: isLoggedIn
       }
     ]
   }

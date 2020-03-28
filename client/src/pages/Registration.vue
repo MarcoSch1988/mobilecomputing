@@ -8,7 +8,7 @@
             square
             clearable
             style="width:100%"
-            v-model="registrationData.email"
+            v-model="registrationData.username"
             type="text"
             label="Benutzername"
           >
@@ -145,17 +145,17 @@
 </template>
 
 <script>
-import userStore from "../stores/userStore";
-
 export default {
   name: "Registration",
   data() {
     return {
       registrationData: {
-        email: "",
+        username: "",
         firstname: "",
         surname: "",
-        company: "",
+        plz: "",
+        city: "",
+        street: "",
         password: "",
         passwordRepeat: ""
       },
@@ -168,7 +168,7 @@ export default {
     signUp() {
       this.$refs.signUpForm.validate().then(isValid => {
         if (isValid === true) {
-          userStore.methods
+          this.$userStore.methods
             .register(this.registrationData)
             .then(response => {
               //No Problem during registration
@@ -184,10 +184,6 @@ export default {
             });
         }
       });
-    },
-    isValidEmail(val) {
-      const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
-      return emailPattern.test(val) || "Invalid email";
     },
     is3Chars(val) {
       return val.length >= 3 || "Must be at least 3 characters";

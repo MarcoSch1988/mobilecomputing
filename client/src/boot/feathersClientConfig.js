@@ -7,7 +7,17 @@ const socket = io("http://localhost:3030");
 
 const feathersClient = feathers()
   .configure(socketio(socket))
-  .configure(auth({ storage: window.localStorage }));
+  .configure(auth({ storage: window.localStorage }))
+  .hooks({
+    before: {
+      all: [
+        // async context => {
+        //   console.log(context);
+        //   return context;
+        // }
+      ]
+    }
+  });
 // .hooks({
 //   before: {
 //     all: [

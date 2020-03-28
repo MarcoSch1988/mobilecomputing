@@ -1,6 +1,7 @@
 import FeathersClient from "../boot/feathersClientConfig";
 
 const UserStore = {
+  user: {},
   data: {
     function() {
       return {
@@ -24,13 +25,20 @@ const UserStore = {
           throw err;
         });
     },
+    async reAuthenticate() {
+      const reAuth = await FeathersClient.authenticate();
+      this.user = reAuth.user;
+      return reAuth;
+    },
     async login(loginData) {
+      console.log(loginData);
       return FeathersClient.authenticate({
         strategy: "local",
         ...loginData
       })
         .then(user => {
           this.user = user;
+          console.log("userDefinded", user);
           return user;
         })
         .catch(err => {

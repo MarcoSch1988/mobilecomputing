@@ -9,7 +9,7 @@
           color="primary"
           class="full-width text-white"
           label="Bestellen"
-          to="/CreateList"
+          to="/order"
         />&nbsp;
         <q-btn
           unelevated
@@ -17,7 +17,15 @@
           color="primary"
           class="full-width text-white q-mb-xl"
           label="Einkaufen"
-          to="/Shopping"
+          to="/shopping"
+        />
+        <q-btn
+          unelevated
+          size="xl"
+          color="primary"
+          class="full-width text-white q-mb-xl"
+          label="Test"
+          @click="test()"
         />
 
         <q-img src="../statics/home.svg" class="q-mt-xl" />
@@ -30,13 +38,17 @@
 export default {
   name: "PageIndex",
   data: function() {
-    return {
-      street: "Theodor-Körnerstraße 115"
-    };
+    return {};
   },
   methods: {
     test() {
-      console.log(this.$feathers);
+      const test = this.$userStore.methods.reAuthenticate();
+      console.log(this.$userStore);
+    }
+  },
+  computed: {
+    street() {
+      return ""; //return User.data.street;
     }
   }
 };

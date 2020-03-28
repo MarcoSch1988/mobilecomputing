@@ -2,7 +2,12 @@
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      // async context => {
+      //   console.log(context);
+      //   return context;
+      // }
+    ],
     find: [],
     get: [],
     create: [],

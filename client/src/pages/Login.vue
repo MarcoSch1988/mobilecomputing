@@ -6,7 +6,7 @@
           <img src="../statics/cart.svg" style="height:250px" class="q-my-md" />
           <q-input square clearable v-model="loginData.username" type="text" label="Benutzername">
             <template v-slot:prepend>
-              <q-icon name="email" />
+              <q-icon name="person" />
             </template>
           </q-input>
           <q-input
@@ -61,14 +61,12 @@
 </template>
 
 <script>
-import userStore from "../stores/userStore";
-
 export default {
   name: "Registration",
   data() {
     return {
       loginData: {
-        email: "",
+        username: "",
         password: ""
       },
       isPasswordVisible: false,
@@ -79,25 +77,18 @@ export default {
     login() {
       this.$refs.signUpForm.validate().then(isValid => {
         if (isValid === true) {
-          userStore.methods
+          this.$userStore.methods
             .login(this.loginData)
             .then(response => {
               this.loginErrorMessage = "";
               this.$router.push("/");
             })
             .catch(err => {
-              console.log(err.message);
+              console.log(err);
               this.loginErrorMessage = "Login failed";
             });
         }
       });
-    },
-    isValidEmail(val) {
-      const emailPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
-      return emailPattern.test(val) || "Invalid email";
-    },
-    is3Chars(val) {
-      return val.length >= 3 || "Must be at least 3 characters";
     }
   }
 };
