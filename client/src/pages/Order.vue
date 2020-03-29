@@ -20,7 +20,12 @@
         </q-form>
 
         <q-list>
-          <q-item clickable v-ripple v-for="item in articles" :key="item._id">
+          <q-item
+            clickable
+            v-ripple
+            v-for="item in openArticles.slice().reverse()"
+            :key="item._id"
+          >
             <q-item-section>{{ item.text }}</q-item-section>
             <q-item-section top side>
               <q-btn
@@ -33,75 +38,120 @@
             </q-item-section>
           </q-item>
         </q-list>
-        <q-btn
-          class="full-width q-mt-xl"
-          color="primary"
-          size="lg"
-          label="Abschicken"
-          @click="test()"
-        />
+        <q-separator />
+        <q-expansion-item class="q-mt-md">
+          <template v-slot:header>
+            <q-item-section>
+              <q-item-label class="text-h6 text-primary text-weight-bold"
+                >Abgeschlossene Einkäufe</q-item-label
+              >
+            </q-item-section>
+          </template>
+          <q-list separator>
+            <q-item dense v-for="item in closedArticles" :key="item._id">
+              <q-item-section>{{ item.text }}</q-item-section>
+              <q-item-section top side
+                >{{ item.boughtAt | normalDate }} <br />
+                {{ item.buyer.firstname }}
+                {{ item.buyer.surname }}</q-item-section
+              >
+            </q-item>
+          </q-list>
+        </q-expansion-item>
       </div>
+      <q-img src="../statics/options.svg" class="footerback" />
     </div>
   </q-page>
 </template>
 
 <script>
-import userStore from "../stores/userStore";
+import { date } from "quasar";
 
 export default {
   name: "Order",
   data() {
     return {
       newArticle: "",
-      articles: []
+      articles: this.$mainStore.articles.data
     };
   },
   mounted() {
-    this.loadItems();
+    this.loadData();
+
+    //Example Own Event Listener :-)
+    this.$mainStore.listener.add(this.givemepush);
+
+    //Event Listener
+    this.$feathers.service("articles").on("patched", async message => {
+      console.log("locally patched", message);
+      this.articles = await this.$mainStore.articles.load();
+      this.$forceUpdate();
+    });
+  },
+  computed: {
+    openArticles: function() {
+      return this.articles.filter(u => {
+        if (
+          u.status === "open" &&
+          u.ordererId === this.$mainStore.user.data._id
+        ) {
+          return u;
+        }
+      });
+    },
+    closedArticles: function() {
+      return this.articles.filter(u => {
+        return (
+          u.status === "closed" && u.ordererId === this.$mainStore.user.data._id
+        );
+      });
+    }
   },
   methods: {
-    test() {
-      console.log(this.articles);
-    },
-    loadItems() {
-      this.$feathers
-        .service("articles")
-        .find({ query: { status: "open" } })
-        .then(result => {
-          this.articles = result.data;
-        });
+    loadData() {
+      this.$mainStore.articles.load().then(() => {
+        this.articles = this.$mainStore.articles.data;
+      });
     },
     addItem() {
       if (this.newArticle.length < 1) return;
 
       const newArticle = {
-        ordererId: "5e7de53f0a5418525482e03e",
         text: this.newArticle
       };
-      console.log("New Article - before: ", newArticle);
-      this.$feathers
-        .service("articles")
-        .create(newArticle)
-        .then(result => {
-          this.articles.push(result);
-          this.newArticle = "";
-          console.log("New Article - created: ", result);
-        })
-        .catch(err => {
-          console.log("New Article - error: ", err);
-        });
+      this.$mainStore.articles.add(newArticle);
+      this.newArticle = "";
     },
-    deleteItem(itemId) {
-      this.$feathers
-        .service("articles")
-        .remove(itemId)
-        .then(result => {
-          this.articles = this.articles.filter(obj => obj._id != itemId);
-        })
-        .catch(err => {
-          console.log("Delete Article - error: ", err);
-        });
+    async deleteItem(itemId) {
+      this.articles = await this.$mainStore.articles.delete(itemId);
+    },
+    onlyOwnArticles: function(articles) {
+      return articles.filter(article => {
+        if (article.ordererId === this.$mainStore.methods.user._id) {
+          return article;
+        }
+      });
+    },
+    givemepush: async function() {
+      console.log("I got pushed");
+    }
+  },
+  filters: {
+    normalDate: function(text) {
+      return date.formatDate(new Date(text), "DD.MM.YYYY HH:mm");
     }
   }
 };
 </script>
+
+<style lang="sass" scoped>
+.footerback
+  opacity: 0.20
+  width: 60%
+  position: absolute
+  left: 10%
+  z-index: -1
+  bottom: 10px
+  background-repeat: no-repeat
+  filter: alpha(opacity=25) progid:DXImageTransform.Microsoft.Alpha(opacity=25)
+</style>

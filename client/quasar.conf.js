@@ -97,8 +97,8 @@ module.exports = function(ctx) {
       workboxPluginMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
       workboxOptions: {}, // only for GenerateSW
       manifest: {
-        name: "teammanager",
-        short_name: "teammanager",
+        name: "IchGehEinkaufen",
+        short_name: "ichgeheinkaufen",
         description: "A Quasar Framework app",
         display: "standalone",
         orientation: "portrait",
@@ -163,7 +163,7 @@ module.exports = function(ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "teammanager"
+        appId: "ichgeheinkaufen"
       },
 
       // More info: https://quasar.dev/quasar-cli/developing-electron-apps/node-integration

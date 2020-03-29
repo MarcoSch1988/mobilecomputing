@@ -7,7 +7,9 @@
     </q-item-section>
 
     <q-item-section>
-      <q-item-label color="primary" class="text-weight-medium">{{ title }}</q-item-label>
+      <q-item-label color="primary" class="text-weight-medium">{{
+        title
+      }}</q-item-label>
       <q-item-label caption>{{ caption }}</q-item-label>
     </q-item-section>
     <q-item-section v-if="locked" avatar color="primary">

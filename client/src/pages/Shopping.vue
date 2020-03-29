@@ -4,36 +4,42 @@
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
         <q-list>
           <div v-for="article in articles" :key="article.id">
-            <q-expansion-item>
+            <q-expansion-item v-if="article.isSelected" default-opened>
               <template v-slot:header>
-                <q-checkbox v-model="article.isSelected" />
-
-                <q-item-section class="q-pl-lg">
-                  <q-item-label>{{ article.name }}</q-item-label>
-                  <q-item-label caption>Artikelanzahl: {{ article.count }}</q-item-label>
+                <q-item-section>
+                  <q-item-label
+                    class="text-h5 text-primary text-weight-medium"
+                    >{{ article.name }}</q-item-label
+                  >
                 </q-item-section>
               </template>
               <q-list>
-                <q-item dense v-for="item in article.items" :key="item._id">
-                  <q-item-section>&nbsp;</q-item-section>
-                  <q-item-section side class="text-black q-mr-md">
-                    {{
-                    item.text
-                    }}
-                  </q-item-section>
-                </q-item>
+                <q-btn
+                  no-caps
+                  dense
+                  :disable="item.status === 'open' ? false : true"
+                  class="text-white q-pa-none q-ma-xs"
+                  :class="item.status === 'open' ? 'bg-primary' : 'bg-grey-5'"
+                  v-for="item in article.items"
+                  :key="item._id"
+                  style="width: 100px; height:100px"
+                  @click="boughtItem(item)"
+                >
+                  <div>
+                    <div
+                      class="text-h5"
+                      style="position: absolute; top:0px; left:5px"
+                    >
+                      {{ item.text | subStr }}
+                    </div>
+                    <div class="text-caption q-pt-sm">{{ item.text }}</div>
+                  </div>
+                </q-btn>
               </q-list>
+              <q-separator />
             </q-expansion-item>
-            <q-separator />
           </div>
         </q-list>
-        <q-btn
-          class="full-width q-mt-xl"
-          color="primary"
-          size="lg"
-          label="Einkaufen"
-          @click="loadItems()"
-        />
       </div>
       <q-img src="../statics/cart.svg" class="footerback" />
     </div>
@@ -41,103 +47,34 @@
 </template>
 
 <script>
-import userStore from "../stores/userStore";
-
 export default {
   name: "CreateList",
   data() {
     return {
-      articles: [],
-      shoppingLists: [
-        {
-          id: 0,
-          isSelected: false,
-          besteller: "Simon Bauer-Kieslinger",
-          anzahl: 2,
-          items: [{ text: "1kg Äpfel" }, { text: "Kondome" }]
-        },
-        {
-          id: 1,
-          isSelected: true,
-          besteller: "Julian Hanzlik",
-          anzahl: 1,
-          items: [
-            {
-              text: "Bananen"
-            }
-          ]
-        },
-        {
-          id: 2,
-          isSelected: false,
-          besteller: "Daniel Lintschinger",
-          anzahl: 2,
-          items: [
-            {
-              text: "Brot",
-              text: "Wurst"
-            }
-          ]
-        },
-        {
-          id: 4,
-          isSelected: false,
-          besteller: "Daniel Lintschinger",
-          anzahl: 2,
-          items: [
-            {
-              text: "Brot",
-              text: "Wurst"
-            }
-          ]
-        },
-        {
-          id: 3,
-          isSelected: false,
-          besteller: "Florian Ortbauer",
-          anzahl: 2,
-          items: [
-            {
-              text: "Steak",
-              text: "Zigarren"
-            }
-          ]
-        }
-      ]
+      articles: []
     };
   },
   mounted() {
-    this.loadItems();
+    this.loadData();
   },
   methods: {
-    loadItems() {
-      this.$feathers
-        .service("articles")
-        .find({ query: { status: "open" } })
-        .then(result => {
-          this.articles = this.arraymap(result.data);
-          console.log(this.articles);
+    loadData() {
+      this.$mainStore.articles.load().then(() => {
+        this.$mainStore.articles.getArticlesgroupedByName().then(() => {
+          this.articles = this.$mainStore.articles.dataGrouped;
         });
-    },
-    arraymap(myarray) {
-      let arraymap = {};
-      myarray.map(x => {
-        if (arraymap[x.ordererId] == undefined) {
-          //Noch nicht enthalten
-          arraymap[x.ordererId] = {
-            name: x.orderer.firstname + " " + x.orderer.surname,
-            id: x.ordererId,
-            isSelected: false,
-            count: 0,
-            items: []
-          };
-        }
-        //Daten einfügen
-        arraymap[x.ordererId].count++;
-        arraymap[x.ordererId].items.push(x);
       });
-
-      return arraymap;
+    },
+    boughtItem(item) {
+      this.$mainStore.articles.buy(item).then(() => {
+        this.articles = this.$mainStore.articles.dataGrouped;
+      });
+    }
+  },
+  filters: {
+    subStr: function(string) {
+      console.log(string);
+      return string.substring(0, 1);
     }
   }
 };

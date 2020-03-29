@@ -9,12 +9,14 @@ module.exports = function(app) {
   const schema = new Schema(
     {
       ordererId: { type: Schema.Types.ObjectId, ref: "users" },
-      buyerId: { type: Schema.Types.ObjectId, ref: "users" },
+      buyerId: { type: Schema.Types.ObjectId, ref: "users", default: null },
+      boughtAt: { type: Date, default: null },
       status: { type: String, required: true, default: "open" },
       text: { type: String, required: true }
     },
     {
-      timestamps: true
+      timestamps: true,
+      minimize: false //To include the empty fields like 'boughtAt' and 'buyerId'...otherwise patch would not work later
     }
   );
 

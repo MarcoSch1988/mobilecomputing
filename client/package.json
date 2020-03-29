@@ -1,8 +1,8 @@
 {
-  "name": "teammanager",
+  "name": "IchGehEinkaufen",
   "version": "0.0.1",
   "description": "A Quasar Framework app",
-  "productName": "teammanager",
+  "productName": "IchGehEinkaufen",
   "cordovaId": "org.cordova.quasar.app",
   "capacitorId": "",
   "author": "Marco Schweiger",
@@ -17,6 +17,7 @@
     "@feathersjs/feathers": "^4.5.2",
     "@feathersjs/socketio-client": "^4.5.2",
     "@quasar/extras": "^1.0.0",
+    "leaflet": "^1.6.0",
     "quasar": "^1.0.0",
     "socket.io-client": "^2.3.0"
   },
@@ -26,7 +27,8 @@
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^4.0.0",
     "eslint-loader": "^3.0.3",
-    "eslint-plugin-vue": "^6.1.2"
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-vue": "^6.2.2"
   },
   "engines": {
     "node": ">= 10.18.1",

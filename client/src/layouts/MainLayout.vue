@@ -9,10 +9,13 @@
           icon="arrow_back"
           aria-label="back"
           to="/"
-          v-if="!['login','register', 'home'].includes($route.name)"
+          v-if="!['login', 'register', 'home'].includes($route.name)"
         />
 
-        <q-toolbar-title>mobile computing projekt</q-toolbar-title>
+        <q-toolbar-title
+          ><span>I</span
+          >ch<span>G</span>eh<span>E</span>inkaufen</q-toolbar-title
+        >
         <q-btn
           flat
           dense
@@ -31,9 +34,9 @@
 
     <q-footer elevated class="bg-primary text-white desktop-only">
       <q-toolbar>
-        <q-toolbar-title
-          class="text-subtitle2 q-ma-none"
-        >&copy; {{ new Date().getFullYear() }} - Guppe 6</q-toolbar-title>
+        <q-toolbar-title class="text-subtitle2 q-ma-none"
+          >&copy; {{ new Date().getFullYear() }} - Guppe 6</q-toolbar-title
+        >
         <div>v0.0.1</div>
       </q-toolbar>
     </q-footer>
@@ -41,9 +44,6 @@
 </template>
 
 <script>
-import { date } from "quasar";
-import userStore from "../stores/userStore";
-
 export default {
   name: "MainLayout",
 
@@ -58,13 +58,17 @@ export default {
   },
   methods: {
     logout() {
-      userStore.methods.logout();
+      this.$mainStore.user.logout();
     }
   }
 };
 </script>
 
-<style lang="sass">
-.q-drawer__content
-  background-color: white
+<style>
+.q-toolbar__title {
+  font-weight: 300;
+}
+span {
+  font-weight: bold;
+}
 </style>

@@ -4,7 +4,13 @@
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
         <q-form class="q-px-sm q-py-l text-center" ref="signUpForm">
           <img src="../statics/cart.svg" style="height:250px" class="q-my-md" />
-          <q-input square clearable v-model="loginData.username" type="text" label="Benutzername">
+          <q-input
+            square
+            clearable
+            v-model="loginData.username"
+            type="text"
+            label="Benutzername"
+          >
             <template v-slot:prepend>
               <q-icon name="person" />
             </template>
@@ -31,10 +37,12 @@
             </template>
           </q-input>
           <p
-            v-if="this.loginErrorMessage!=''"
+            v-if="this.loginErrorMessage != ''"
             class="text-red"
             style="text-align: center"
-          >{{loginErrorMessage}}</p>
+          >
+            {{ loginErrorMessage }}
+          </p>
           <q-btn
             unelevated
             size="lg"
@@ -43,7 +51,6 @@
             label="Einloggen"
             @click="login()"
           />
-
           <q-btn
             flat
             size="md"
@@ -53,7 +60,12 @@
             to="/register"
           />
           <br />
-          <q-btn flat color="grey" class="full-width" label="Passwort vergessen" />
+          <q-btn
+            flat
+            color="grey"
+            class="full-width"
+            label="Passwort vergessen"
+          />
         </q-form>
       </div>
     </div>
@@ -77,9 +89,9 @@ export default {
     login() {
       this.$refs.signUpForm.validate().then(isValid => {
         if (isValid === true) {
-          this.$userStore.methods
+          this.$mainStore.user
             .login(this.loginData)
-            .then(response => {
+            .then(() => {
               this.loginErrorMessage = "";
               this.$router.push("/");
             })
