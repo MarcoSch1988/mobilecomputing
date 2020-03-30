@@ -39,28 +39,25 @@ const routes = [
         component: () => import("pages/Login.vue")
       },
       {
-        path: "/checkout",
-        name: "checkout",
-        component: () => import("pages/Checkout.vue"),
-        beforeEnter: isLoggedIn
-      },
-      {
         path: "/order",
         name: "order",
         component: () => import("pages/Order.vue"),
-        beforeEnter: isLoggedIn
+        beforeEnter: isLoggedIn,
+        meta: { title: "Bestellen", backRoute: "/" }
       },
       {
         path: "/shoppingselect",
         name: "shoppingselect",
         component: () => import("pages/ShoppingSelect.vue"),
-        beforeEnter: isLoggedIn
+        beforeEnter: isLoggedIn,
+        meta: { title: "Einkaufen", backRoute: "/" }
       },
       {
         path: "/shopping",
         name: "shopping",
         component: () => import("pages/Shopping.vue"),
-        beforeEnter: isLoggedIn
+        beforeEnter: isLoggedIn,
+        meta: { title: "Einkaufen", backRoute: "/shoppingselect" }
       }
     ]
   }

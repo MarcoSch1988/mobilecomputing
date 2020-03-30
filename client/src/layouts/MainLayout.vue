@@ -3,19 +3,22 @@
     <q-header reveal elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn
-          v-if="!['login', 'register', 'home'].includes($route.name)"
+          v-if="$route.meta.backRoute"
           flat
           dense
           round
           icon="arrow_back"
           aria-label="back"
-          to="/"
+          :to="$route.meta.backRoute"
         />
 
-        <q-toolbar-title
-          ><span>I</span
-          >ch<span>G</span>eh<span>E</span>inkaufen</q-toolbar-title
-        >
+        <q-toolbar-title v-if="title != ''">
+          {{ title }}
+        </q-toolbar-title>
+        <q-toolbar-title v-if="title === ''" class="titleclass">
+          <span>I</span>ch<span>G</span>eh<span>E</span>inkaufen
+        </q-toolbar-title>
+
         <q-btn
           v-if="['home'].includes($route.name)"
           flat
@@ -35,8 +38,8 @@
     <q-footer elevated class="bg-primary text-white desktop-only">
       <q-toolbar>
         <q-toolbar-title class="text-subtitle2 q-ma-none"
-          >&copy; {{ new Date().getFullYear() }} - Guppe 6</q-toolbar-title
-        >
+          >&copy; {{ new Date().getFullYear() }} - Guppe 6
+        </q-toolbar-title>
         <div>v0.0.1</div>
       </q-toolbar>
     </q-footer>
@@ -46,9 +49,15 @@
 <script>
 export default {
   name: "MainLayout",
-
+  watch: {
+    $route(to) {
+      this.title = to.meta.title || "";
+    }
+  },
   data() {
-    return {};
+    return {
+      title: ""
+    };
   },
   computed: {
     currentYear() {
@@ -65,10 +74,10 @@ export default {
 </script>
 
 <style>
-.q-toolbar__title {
+.titleclass {
   font-weight: 300;
 }
-span {
+.titleclass span {
   font-weight: bold;
 }
 </style>

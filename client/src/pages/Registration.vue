@@ -97,9 +97,16 @@
               </q-item>
             </div>
           </q-list>
-          <div id="map" style="width: 100%; height:200px" />
+          <div id="map" style="width: 100%; height:200px"></div>
           <div class="text-center text-caption fit text-grey-6">
             Latitude: {{ latitude }} - Longitude: {{ longitude }}
+          </div>
+          <div
+            class="text-center fit text-primary text-body2 text-weight-medium"
+          >
+            Bitte platzieren Sie den Marker
+            <img src="../statics/marker-icon.png" style="height:1em" /> direkt
+            auf Ihren Wohnort
           </div>
           <q-input
             v-model="registrationData.password"
