@@ -3,13 +3,13 @@
     <q-header reveal elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn
+          v-if="!['login', 'register', 'home'].includes($route.name)"
           flat
           dense
           round
           icon="arrow_back"
           aria-label="back"
           to="/"
-          v-if="!['login', 'register', 'home'].includes($route.name)"
         />
 
         <q-toolbar-title
@@ -17,13 +17,13 @@
           >ch<span>G</span>eh<span>E</span>inkaufen</q-toolbar-title
         >
         <q-btn
+          v-if="['home'].includes($route.name)"
           flat
           dense
           round
           icon="logout"
           aria-label="logout"
           @click="logout()"
-          v-if="['home'].includes($route.name)"
         />
       </q-toolbar>
     </q-header>

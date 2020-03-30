@@ -2,12 +2,12 @@
   <q-page class="flex q-py-sm">
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
-        <q-form class="q-px-sm q-py-l text-center" ref="signUpForm">
+        <q-form ref="signUpForm" class="q-px-sm q-py-l text-center">
           <img src="../statics/cart.svg" style="height:250px" class="q-my-md" />
           <q-input
+            v-model="loginData.username"
             square
             clearable
-            v-model="loginData.username"
             type="text"
             label="Benutzername"
           >
@@ -16,9 +16,9 @@
             </template>
           </q-input>
           <q-input
+            v-model="loginData.password"
             square
             class="q-py-lg"
-            v-model="loginData.password"
             :type="isPasswordVisible ? 'text' : 'password'"
             label="Passwort"
           >
@@ -37,7 +37,7 @@
             </template>
           </q-input>
           <p
-            v-if="this.loginErrorMessage != ''"
+            v-if="loginErrorMessage != ''"
             class="text-red"
             style="text-align: center"
           >

@@ -3,14 +3,13 @@
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
         <q-form
-          class="q-px-sm q-pt-lg q-pb-xs row items-start"
           ref="signUpForm"
+          class="q-px-sm q-pt-lg q-pb-xs row items-start"
         >
-          <!-- zu class hinzufügen für gewrappte elemente:  -->
           <q-input
+            v-model="registrationData.username"
             square
             style="width:100%"
-            v-model="registrationData.username"
             type="text"
             label="Benutzername"
           >
@@ -19,9 +18,9 @@
             </template>
           </q-input>
           <q-input
+            v-model="registrationData.firstname"
             square
             style="width:100%"
-            v-model="registrationData.firstname"
             type="text"
             label="Vorname"
           >
@@ -30,9 +29,9 @@
             </template>
           </q-input>
           <q-input
+            v-model="registrationData.surname"
             square
             style="width:100%"
-            v-model="registrationData.surname"
             type="text"
             label="Nachname"
           >
@@ -41,10 +40,10 @@
             </template>
           </q-input>
           <q-input
+            v-model="registrationData.plz"
             square
             style="width:33%"
             class="q-mr-sm"
-            v-model="registrationData.plz"
             type="text"
             label="PLZ"
           >
@@ -53,8 +52,8 @@
             </template>
           </q-input>
           <q-input
-            square
             v-model="registrationData.city"
+            square
             type="text"
             label="Ort"
           >
@@ -63,9 +62,9 @@
             </template>
           </q-input>
           <q-input
+            v-model="registrationData.street"
             square
             style="width:100%"
-            v-model="registrationData.street"
             type="text"
             label="Straße + Nr."
           >
@@ -88,10 +87,10 @@
                 >{{ address.address.road }} {{ address.address.house_number }},
                 {{ address.address.postcode }}
                 {{ address.address.city }}, {{ address.address.country }}
-              </q-item-section> -->
+                </q-item-section>-->
                 <!-- <q-item-section side top>
                   OK
-                </q-item-section> -->
+                </q-item-section>-->
                 <q-item-section class="text-caption">
                   {{ address.display_name }}
                 </q-item-section>
@@ -103,9 +102,9 @@
             Latitude: {{ latitude }} - Longitude: {{ longitude }}
           </div>
           <q-input
+            v-model="registrationData.password"
             square
             style="width:100%"
-            v-model="registrationData.password"
             :type="isPasswordVisible ? 'text' : 'password'"
             label="Passwort"
           >
@@ -124,9 +123,9 @@
             </template>
           </q-input>
           <q-input
+            v-model="registrationData.passwordRepeat"
             square
             style="width:100%"
-            v-model="registrationData.passwordRepeat"
             :type="isPasswordVisible ? 'text' : 'password'"
             label="Passwort*"
             :rules="[
@@ -151,14 +150,14 @@
           </q-input>
 
           <p
-            v-if="this.registrationErrorMessage != ''"
+            v-if="registrationErrorMessage != ''"
             class="text-red"
             style="text-align: center"
           >
             {{ registrationErrorMessage }}
           </p>
           <p
-            v-if="this.registrationSuccessful === true"
+            v-if="registrationSuccessful === true"
             class="text-green"
             style="text-align: center"
           >
@@ -245,7 +244,7 @@ export default {
               this.registrationSuccessful = true;
               setTimeout(() => {
                 this.$router.push("/login");
-              }, 2000);
+              }, 1500);
             })
             .catch(err => {
               console.log(err);
@@ -340,8 +339,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-
-
 .footerback
   opacity: 0.4
   width: 80%

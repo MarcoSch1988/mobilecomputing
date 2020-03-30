@@ -15,13 +15,13 @@
               </template>
               <q-list>
                 <q-btn
+                  v-for="item in article.items"
+                  :key="item._id"
                   no-caps
                   dense
                   :disable="item.status === 'open' ? false : true"
                   class="text-white q-pa-none q-ma-xs"
                   :class="item.status === 'open' ? 'bg-primary' : 'bg-grey-5'"
-                  v-for="item in article.items"
-                  :key="item._id"
                   style="width: 100px; height:100px"
                   @click="boughtItem(item)"
                 >
@@ -49,6 +49,12 @@
 <script>
 export default {
   name: "CreateList",
+  filters: {
+    subStr: function(string) {
+      console.log(string);
+      return string.substring(0, 1);
+    }
+  },
   data() {
     return {
       articles: []
@@ -69,12 +75,6 @@ export default {
       this.$mainStore.articles.buy(item).then(() => {
         this.articles = this.$mainStore.articles.dataGrouped;
       });
-    }
-  },
-  filters: {
-    subStr: function(string) {
-      console.log(string);
-      return string.substring(0, 1);
     }
   }
 };

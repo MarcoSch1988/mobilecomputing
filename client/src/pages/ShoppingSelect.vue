@@ -21,7 +21,7 @@
               </template>
               <q-list>
                 <div v-for="item in article.items" :key="item._id">
-                  <q-item dense v-if="item.status === 'open'">
+                  <q-item v-if="item.status === 'open'" dense>
                     <q-item-section>&nbsp;</q-item-section>
                     <q-item-section side class="text-black q-mr-md">
                       {{ item.text }}

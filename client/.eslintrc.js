@@ -1,24 +1,21 @@
 module.exports = {
   root: true,
-
-  parserOptions: {
-    parser: "babel-eslint",
-    sourceType: "module"
-  },
-
   env: {
+    node: true,
     browser: true
   },
-
   extends: [
-    "plugin:vue/essential",
+    "plugin:vue/recommended",
+    "eslint:recommended",
     "plugin:prettier/recommended",
-    "eslint:recommended"
+    "prettier/vue",
+    "prettier"
   ],
-
-  // required to lint *.vue files
-  plugins: ["vue"],
-
+  rules: {
+    "vue/component-name-in-template-casing": ["error", "PascalCase"],
+    "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
+    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off"
+  },
   globals: {
     ga: true, // Google Analytics
     cordova: true,
@@ -27,12 +24,7 @@ module.exports = {
     Capacitor: true,
     chrome: true
   },
-
-  // add your custom rules here
-  rules: {
-    "prefer-promise-reject-errors": "off",
-
-    // allow debugger during development only
-    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off"
+  parserOptions: {
+    parser: "babel-eslint"
   }
 };

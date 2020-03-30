@@ -15,25 +15,23 @@ module.exports = {
   before: {
     all: [],
     find: [
-      authenticate("jwt")
-      //Problem: Ich wollte das Find auf den eigenen Benutzer beschränken -> Aber dann funktionieren die Populate hook nicht mehr
-      // authenticate("jwt", {
-      //   allowUnauthenticated: true
-      // }),
-      // context => {
-      //   if (context.params.query.MsgToHook === "onlyLocation") {
-      //     delete context.params.query.MsgToHook;
-      //     context.params.MsgToAfterHook = "onlyLocation";
-      //   } else {
-      //     if (context.params.user == undefined) {
-      //       //Es handelt sich um einen Login aufruf
-      //     } else {
-      //       //Es handelt sich um einen normalen Aufruf
-      //       console.log("NORMALER AUFRUF");
-      //       context.params.query._id = context.params.user._id;
-      //     }
-      //   }
-      // }
+      authenticate("jwt"),
+
+      hook => {
+        if (hook.params._populate != undefined) {
+          //Es handelt sich um einen Populate Zugriff --> Erlauben
+          //console.log("Populate");
+        } else {
+          if (hook.params.authentication != undefined) {
+            //Normaler Aufruf
+            hook.params.query._id = hook.params.user._id;
+            //console.log("Normal");
+          } else {
+            //Login Aufruf
+            //console.log("Login");
+          }
+        }
+      }
     ],
     get: [authenticate("jwt")],
     create: [hashPassword("password")],

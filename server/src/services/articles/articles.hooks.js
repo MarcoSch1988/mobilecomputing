@@ -37,8 +37,7 @@ module.exports = {
 
   after: {
     all: [
-      //TODO Populate durch FastFind ersetzen
-      //Nicht alle Benutzerdaten mitschicken
+      //TODO Nicht alle Benutzerdaten mitschicken
       populate({
         schema: {
           include: [

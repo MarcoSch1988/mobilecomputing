@@ -21,10 +21,10 @@
 
         <q-list>
           <q-item
-            clickable
-            v-ripple
             v-for="item in openArticles.slice().reverse()"
             :key="item._id"
+            v-ripple
+            clickable
           >
             <q-item-section>{{ item.text }}</q-item-section>
             <q-item-section top side>
@@ -48,7 +48,7 @@
             </q-item-section>
           </template>
           <q-list separator>
-            <q-item dense v-for="item in closedArticles" :key="item._id">
+            <q-item v-for="item in closedArticles" :key="item._id" dense>
               <q-item-section>{{ item.text }}</q-item-section>
               <q-item-section top side
                 >{{ item.boughtAt | normalDate }} <br />
@@ -69,25 +69,18 @@ import { date } from "quasar";
 
 export default {
   name: "Order",
+  filters: {
+    normalDate: function(text) {
+      return date.formatDate(new Date(text), "DD.MM.YYYY HH:mm");
+    }
+  },
   data() {
     return {
       newArticle: "",
       articles: this.$mainStore.articles.data
     };
   },
-  mounted() {
-    this.loadData();
 
-    //Example Own Event Listener :-)
-    this.$mainStore.listener.add(this.givemepush);
-
-    //Event Listener
-    this.$feathers.service("articles").on("patched", async message => {
-      console.log("locally patched", message);
-      this.articles = await this.$mainStore.articles.load();
-      this.$forceUpdate();
-    });
-  },
   computed: {
     openArticles: function() {
       return this.articles.filter(u => {
@@ -106,6 +99,19 @@ export default {
         );
       });
     }
+  },
+  mounted() {
+    this.loadData();
+
+    //Example Own Event Listener :-)
+    this.$mainStore.listener.add(this.givemepush);
+
+    //Event Listener
+    this.$feathers.service("articles").on("patched", async message => {
+      console.log("locally patched", message);
+      this.articles = await this.$mainStore.articles.load();
+      this.$forceUpdate();
+    });
   },
   methods: {
     loadData() {
@@ -134,11 +140,6 @@ export default {
     },
     givemepush: async function() {
       console.log("I got pushed");
-    }
-  },
-  filters: {
-    normalDate: function(text) {
-      return date.formatDate(new Date(text), "DD.MM.YYYY HH:mm");
     }
   }
 };
