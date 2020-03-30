@@ -2,6 +2,9 @@
   <q-page class="flex q-py-sm">
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
+        <h5 v-if="articles.length < 1" class="text-center text-primary">
+          Keine Einkäufe in Ihrer Umgebung verfügbar
+        </h5>
         <q-list>
           <div v-for="article in articles" :key="article.id">
             <q-expansion-item>
@@ -72,11 +75,12 @@ export default {
     },
 
     goShopping() {
-      this.$mainStore.articles.load().then(() => {
-        this.$mainStore.articles.getArticlesgroupedByName().then(() => {
-          this.$router.push("/shopping");
-        });
-      });
+      // this.$mainStore.articles.load().then(() => {
+      //   this.$mainStore.articles.getArticlesgroupedByName().then(() => {
+      //     this.$router.push("/shopping");
+      //   });
+      // });
+      this.$router.push("/shopping");
     }
   }
 };

@@ -81,7 +81,7 @@
                 v-if="addressPrediction.length > 1"
                 clickable
                 dense
-                @click="setLocation(address.lat, address.lon)"
+                @click="setLocation(address.lat, address.lon, address.address)"
               >
                 <!-- <q-item-section
                 >{{ address.address.road }} {{ address.address.house_number }},
@@ -260,15 +260,28 @@ export default {
         }
       });
     },
-    setLocation(latidude, longitude) {
+    setLocation(latidude, longitude, address) {
       marker.closePopup();
       map.setView([latidude, longitude], 18);
       marker.setLatLng([latidude, longitude]);
       this.latitude = parseFloat(latidude).toFixed(8);
       this.longitude = parseFloat(longitude).toFixed(8);
+
+      //Adressdaten übernehmen
+      if (address.road == undefined) {
+        if (address.construction != undefined) {
+          this.registrationData.street = address.construction;
+        }
+      } else {
+        this.registrationData.street = address.road;
+      }
+
+      this.registrationData.plz = address.postcode;
+      this.registrationData.city = address.city;
     },
 
     searchAddress() {
+      this.addressPrediction = "";
       if (
         this.registrationData.street.length < 1 ||
         this.registrationData.city.length < 1 ||

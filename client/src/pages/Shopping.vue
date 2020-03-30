@@ -2,16 +2,34 @@
   <q-page class="flex q-py-sm">
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
+        <h5
+          v-if="articlesWithoutOld.length < 1"
+          class="text-center text-primary"
+        >
+          Keine Einkäufe in Ihrer Umgebung verfügbar
+        </h5>
         <q-list>
-          <div v-for="article in articles" :key="article.id">
-            <q-expansion-item v-if="article.isSelected" default-opened>
+          <div v-for="article in articlesWithoutOld" :key="article.id">
+            <q-expansion-item
+              v-if="article.isSelected"
+              style="border-bottom: solid 1px #CCCCCC"
+            >
               <template v-slot:header>
                 <q-item-section>
                   <q-item-label
-                    class="text-h5 text-primary text-weight-medium"
-                    >{{ article.name }}</q-item-label
-                  >
+                    class="text-h6 text-primary q-ml-none"
+                    style="display: flex; justify-content: space-between"
+                    >{{ article.name }}
+                    <span class="text-caption text-grey-7">
+                      {{ openArticles(article) }}/{{ article.items.length }}
+                    </span>
+                  </q-item-label>
+                  <q-item-label caption>
+                    {{ article.address.street }} -
+                    {{ article.address.distance }} m
+                  </q-item-label>
                 </q-item-section>
+                <q-separator />
               </template>
               <q-list>
                 <q-btn
@@ -47,11 +65,12 @@
 </template>
 
 <script>
+import { date } from "quasar";
+
 export default {
   name: "CreateList",
   filters: {
     subStr: function(string) {
-      console.log(string);
       return string.substring(0, 1);
     }
   },
@@ -60,26 +79,70 @@ export default {
       articles: []
     };
   },
+  computed: {
+    articlesWithoutOld: function() {
+      const maxAgeInHours = 17; //Für tests 17 --> 24 Stunden
+
+      //Article kopieren
+      let myarticles = Array.from(this.articles);
+
+      let asd = myarticles.filter(article => {
+        if (article.isSelected === false) {
+          return;
+        }
+        article.items = article.items.filter(item => {
+          //Prüfen ob Status = closed und boughtAt-Date älter als maxAgeinHours
+          //Nur die Zurücklieferen die nicht zu alt sind
+
+          let dateDiffInHours = date.getDateDiff(
+            Date.now(),
+            item.boughtAt,
+            "hours"
+          );
+          if (
+            (item.status === "closed" && dateDiffInHours <= maxAgeInHours) ||
+            item.status === "open"
+          ) {
+            return item;
+          }
+        });
+        return article;
+      });
+
+      console.log(this.articles);
+
+      return asd;
+    }
+  },
   mounted() {
     this.loadData();
   },
+
   methods: {
     loadData() {
-      this.$mainStore.articles.load().then(() => {
-        this.$mainStore.articles.getArticlesgroupedByName().then(() => {
-          this.articles = this.$mainStore.articles.dataGrouped;
-        });
-      });
+      // this.$mainStore.articles.load().then(() => {
+      //   this.$mainStore.articles.getArticlesgroupedByName().then(() => {
+      //     this.articles = this.$mainStore.articles.dataGrouped;
+      //   });
+      // });
+      this.articles = this.$mainStore.articles.dataGrouped;
     },
     boughtItem(item) {
       this.$mainStore.articles.buy(item).then(() => {
         this.articles = this.$mainStore.articles.dataGrouped;
       });
+    },
+    openArticles: function(article) {
+      return article.items.filter(u => {
+        return u.status === "open";
+      }).length;
     }
   }
 };
 </script>
+
 <style lang="sass" scoped>
+
 .footerback
   opacity: 0.4
   width: 80%

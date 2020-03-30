@@ -49,11 +49,6 @@
 <script>
 export default {
   name: "MainLayout",
-  watch: {
-    $route(to) {
-      this.title = to.meta.title || "";
-    }
-  },
   data() {
     return {
       title: ""
@@ -65,6 +60,12 @@ export default {
       return Date.now().getYear();
     }
   },
+  watch: {
+    $route(to) {
+      this.title = to.meta.title || "";
+    }
+  },
+
   methods: {
     logout() {
       this.$mainStore.user.logout();

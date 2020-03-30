@@ -23,7 +23,7 @@
           color="primary"
           class="full-width text-white q-mb-xl"
           label="Einkaufen"
-          to="/shoppingselect"
+          to="/shopping"
         />
         <q-img src="../statics/home.svg" class="q-mt-xl" />
       </div>
@@ -40,11 +40,20 @@ export default {
     };
   },
   mounted() {
-    this.$mainStore.user.reAuthenticate().then(() => {
-      this.user = this.$mainStore.user.data;
-      this.$mainStore.articles.load();
-    });
+    this.loadData();
+    // this.$mainStore.user.reAuthenticate().then(() => {
+    //   this.user = this.$mainStore.user.data;
+    //   this.$mainStore.articles.load();
+    // });
   },
-  methods: {}
+  methods: {
+    loadData() {
+      this.$mainStore.user.reAuthenticate().then(() => {
+        this.$mainStore.articles.load().then(() => {
+          this.$mainStore.articles.getArticlesgroupedByName().then(() => {});
+        });
+      });
+    }
+  }
 };
 </script>

@@ -4,7 +4,12 @@
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
         <q-form>
           <q-card-section>
-            <q-input v-model="newArticle" label="Artikel">
+            <q-input
+              v-model="newArticle"
+              label="Artikel"
+              @keydown.enter.prevent
+              @keydown.enter="addItem()"
+            >
               <template v-slot:after>
                 <q-btn
                   round

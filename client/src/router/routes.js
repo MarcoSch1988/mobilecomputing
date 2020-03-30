@@ -57,7 +57,7 @@ const routes = [
         name: "shopping",
         component: () => import("pages/Shopping.vue"),
         beforeEnter: isLoggedIn,
-        meta: { title: "Einkaufen", backRoute: "/shoppingselect" }
+        meta: { title: "Einkaufen", backRoute: "/" }
       }
     ]
   }
