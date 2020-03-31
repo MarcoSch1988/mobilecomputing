@@ -5,9 +5,7 @@
         <h5
           v-if="articlesWithoutOld.length < 1"
           class="text-center text-primary"
-        >
-          Keine Einkäufe in Ihrer Umgebung verfügbar
-        </h5>
+        >Keine Einkäufe in Ihrer Umgebung verfügbar</h5>
         <q-list>
           <div v-for="article in articlesWithoutOld" :key="article.id">
             <q-expansion-item
