@@ -62,10 +62,20 @@ const MainStore = {
     async buy(item) {
       return FeathersClient.service("articles")
         .patch(item._id, { status: "closed" })
-        .then(async result => {
+        .then(async () => {
           await this.load();
           await this.getArticlesgroupedByName();
-          console.log("updated: ", result);
+        })
+        .catch(err => {
+          console.log("updated-error: ", err);
+        });
+    },
+    async reactivate(item) {
+      return FeathersClient.service("articles")
+        .patch(item._id, { status: "open" })
+        .then(async () => {
+          await this.load();
+          await this.getArticlesgroupedByName();
         })
         .catch(err => {
           console.log("updated-error: ", err);

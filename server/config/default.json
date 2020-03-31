@@ -25,5 +25,6 @@
       "passwordField": "password"
     }
   },
-  "mongodb": "mongodb://localhost:27017/ichgeheinkaufen"
+
+  "mongodb": "mongodb+srv://dbAdmin:bauer5943@testcluster-jvlw9.mongodb.net/ichgeheinkaufen?retryWrites=true&w=majority"
 }

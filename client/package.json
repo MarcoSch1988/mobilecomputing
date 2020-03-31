@@ -18,7 +18,7 @@
     "@feathersjs/socketio-client": "^4.5.2",
     "@quasar/extras": "^1.0.0",
     "leaflet": "^1.6.0",
-    "quasar": "^1.0.0",
+    "quasar": "^1.9.12",
     "socket.io-client": "^2.3.0"
   },
   "devDependencies": {

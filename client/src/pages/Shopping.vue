@@ -5,7 +5,9 @@
         <h5
           v-if="articlesWithoutOld.length < 1"
           class="text-center text-primary"
-        >Keine Einkäufe in Ihrer Umgebung verfügbar</h5>
+        >
+          Keine Einkäufe in Ihrer Umgebung verfügbar
+        </h5>
         <q-list>
           <div v-for="article in articlesWithoutOld" :key="article.id">
             <q-expansion-item
@@ -17,10 +19,13 @@
                   <q-item-label
                     class="text-h6 text-primary q-ml-none"
                     style="display: flex; justify-content: space-between"
-                    >{{ article.name }}
-                    <span class="text-caption text-grey-7">
-                      {{ openArticles(article) }}/{{ article.items.length }}
-                    </span>
+                  >
+                    {{ article.name }}
+                    <span class="text-caption text-grey-7"
+                      >{{ openArticles(article) }}/{{
+                        article.items.length
+                      }}</span
+                    >
                   </q-item-label>
                   <q-item-label caption>
                     {{ article.address.street }} -
@@ -30,16 +35,20 @@
                 <q-separator />
               </template>
               <q-list>
+                <!-- :disable="item.status === 'open' ? false : true" -->
                 <q-btn
                   v-for="item in article.items"
                   :key="item._id"
                   no-caps
                   dense
-                  :disable="item.status === 'open' ? false : true"
                   class="text-white q-pa-none q-ma-xs"
                   :class="item.status === 'open' ? 'bg-primary' : 'bg-grey-5'"
                   style="width: 100px; height:100px"
-                  @click="boughtItem(item)"
+                  @click="
+                    item.status === 'open'
+                      ? boughtItem(item)
+                      : openReactivateDialog(item)
+                  "
                 >
                   <div>
                     <div
@@ -57,6 +66,38 @@
           </div>
         </q-list>
       </div>
+      <q-dialog v-model="reactivateAlert.active" persistent>
+        <q-card>
+          <q-toolbar>
+            <q-icon name="reply" style="font-size: 2em;" />
+            <q-toolbar-title
+              ><span class="text-weight-bold">Rückgängig</span>
+            </q-toolbar-title>
+
+            <q-btn flat round dense icon="close" v-close-popup />
+          </q-toolbar>
+          <q-card-section style="font-size: 1.4em">
+            Wollen Sie den Einkauf von
+            <b>{{ reactivateAlert.item.text }}</b> rückgängig machen?
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn
+              v-close-popup
+              label="Abbrechen"
+              color="primary"
+              class="q-pa-xs"
+            />
+            <q-btn
+              v-close-popup
+              label="Ja"
+              color="primary"
+              class="q-pa-xs"
+              @click="reactivateItem(reactivateAlert.item)"
+            />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
       <q-img src="../statics/cart.svg" class="footerback" />
     </div>
   </q-page>
@@ -74,7 +115,11 @@ export default {
   },
   data() {
     return {
-      articles: []
+      articles: [],
+      reactivateAlert: {
+        active: false,
+        item: {}
+      }
     };
   },
   computed: {
@@ -130,6 +175,19 @@ export default {
         this.articles = this.$mainStore.articles.dataGrouped;
       });
     },
+    openReactivateDialog(item) {
+      this.reactivateAlert = {
+        active: true,
+        item: item
+      };
+    },
+    reactivateItem(item) {
+      this.$mainStore.articles.reactivate(item).then(() => {
+        this.articles = this.$mainStore.articles.dataGrouped;
+      });
+      console.log("Reactivated: ", item);
+    },
+
     openArticles: function(article) {
       return article.items.filter(u => {
         return u.status === "open";
@@ -140,7 +198,6 @@ export default {
 </script>
 
 <style lang="sass" scoped>
-
 .footerback
   opacity: 0.4
   width: 80%
