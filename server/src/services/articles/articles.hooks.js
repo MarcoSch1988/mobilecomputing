@@ -24,11 +24,6 @@ module.exports = {
         if (hook.data.status === "closed") {
           hook.data.buyerId = hook.params.user._id;
           hook.data.boughtAt = new Date();
-          // setField({
-          //   from: "params.user._id",
-          //   as: "params.data.buyerId"
-          // });
-          // setNow("boughtAt"); //entspricht params.data.boughtAt = new Date();
         }
       }
     ],
