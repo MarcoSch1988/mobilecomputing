@@ -3,12 +3,17 @@
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
         <h5
-          v-if="articlesWithoutOld.length < 1"
+          v-if="articlesWithoutOld.length < 1 && Loading.isActive === false"
           class="text-center text-primary"
-        >Keine Einkäufe in Ihrer Umgebung verfügbar</h5>
+        >
+          Keine Einkäufe in Ihrer Umgebung verfügbar
+        </h5>
         <q-list>
           <div v-for="article in articlesWithoutOld" :key="article.id">
-            <q-expansion-item v-if="article.isSelected" style="border-bottom: solid 1px #CCCCCC">
+            <q-expansion-item
+              v-if="article.isSelected"
+              style="border-bottom: solid 1px #CCCCCC"
+            >
               <template v-slot:header>
                 <q-item-section>
                   <q-item-label
@@ -16,11 +21,11 @@
                     style="display: flex; justify-content: space-between"
                   >
                     {{ article.name }}
-                    <span class="text-caption text-grey-7">
-                      {{ openArticles(article) }}/{{
-                      article.items.length
-                      }}
-                    </span>
+                    <span class="text-caption text-grey-7"
+                      >{{ openArticles(article) }}/{{
+                        article.items.length
+                      }}</span
+                    >
                   </q-item-label>
                   <q-item-label caption>
                     {{ article.address.street }} -
@@ -47,10 +52,17 @@
                 >
                   <div>
                     <div
-                      class="text-h5"
-                      style="position: absolute; top:0px; left:5px"
-                    >{{ item.text | subStr }}</div>
-                    <div class="text-caption q-pt-sm">{{ item.text }}</div>
+                      class="text-h5 text-left"
+                      style="position: absolute; top:0px; left:5px;"
+                    >
+                      {{ item.text | subStr }}
+                    </div>
+                    <div
+                      class="text-caption text-center"
+                      style="max-width:100px; word-wrap: break-word;"
+                    >
+                      {{ item.text }}
+                    </div>
                   </div>
                 </q-btn>
               </q-list>
@@ -75,7 +87,12 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn v-close-popup label="Abbrechen" color="primary" class="q-pa-xs" />
+            <q-btn
+              v-close-popup
+              label="Abbrechen"
+              color="primary"
+              class="q-pa-xs"
+            />
             <q-btn
               v-close-popup
               label="Ja"
@@ -92,7 +109,7 @@
 </template>
 
 <script>
-import { date } from "quasar";
+import { date, Loading } from "quasar";
 
 export default {
   name: "CreateList",
@@ -104,6 +121,7 @@ export default {
   data() {
     return {
       articles: [],
+      isloading: false,
       reactivateAlert: {
         active: false,
         item: {}
@@ -112,7 +130,7 @@ export default {
   },
   computed: {
     articlesWithoutOld: function() {
-      const maxAgeInHours = 17; //Für tests 17 --> 24 Stunden
+      const maxAgeInHours = 24; //Für tests 17 --> 24 Stunden
 
       //Article kopieren
       let myarticles = Array.from(this.articles);
@@ -140,8 +158,6 @@ export default {
         return article;
       });
 
-      console.log(this.articles);
-
       return asd;
     }
   },
@@ -151,12 +167,21 @@ export default {
 
   methods: {
     loadData() {
-      // this.$mainStore.articles.load().then(() => {
-      //   this.$mainStore.articles.getArticlesgroupedByName().then(() => {
-      //     this.articles = this.$mainStore.articles.dataGrouped;
-      //   });
-      // });
-      this.articles = this.$mainStore.articles.dataGrouped;
+      //Timeout wahrscheinlich notwendig, weil was wenn keine Internetverbindung!?
+      //Oder übernimmt das der Service Worker?
+      Loading.show();
+      this.$mainStore.articles
+        .load()
+        .then(() => {
+          this.$mainStore.articles.getArticlesgroupedByName().then(() => {
+            this.articles = this.$mainStore.articles.dataGrouped;
+          });
+        })
+        .finally(() => {
+          Loading.hide();
+        });
+
+      // this.articles = this.$mainStore.articles.dataGrouped;
     },
     boughtItem(item) {
       this.$mainStore.articles.buy(item).then(() => {
@@ -195,4 +220,9 @@ export default {
   bottom: 10px
   background-repeat: no-repeat
   filter: alpha(opacity=25) progid:DXImageTransform.Microsoft.Alpha(opacity=25)
+
+.wordwrap
+  text-align: center;
+  white-space: pre-wrap;      /* CSS3 */
+  word-wrap: break-word;      /* IE */
 </style>

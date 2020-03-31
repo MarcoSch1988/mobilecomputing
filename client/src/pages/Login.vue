@@ -21,6 +21,8 @@
             class="q-py-lg"
             :type="isPasswordVisible ? 'text' : 'password'"
             label="Passwort"
+            @keydown.enter.prevent
+            @keydown.enter="login()"
           >
             <template v-slot:prepend>
               <q-icon name="lock" />

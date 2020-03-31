@@ -33,7 +33,7 @@
 
 <script>
 export default {
-  name: "PageIndex",
+  name: "Home",
   data: function() {
     return {
       user: this.$mainStore.user.data
@@ -48,10 +48,13 @@ export default {
   },
   methods: {
     loadData() {
+      // this.$mainStore.user.reAuthenticate().then(() => {
+      //   this.$mainStore.articles.load().then(() => {
+      //     this.$mainStore.articles.getArticlesgroupedByName().then(() => {});
+      //   });
+      // });
       this.$mainStore.user.reAuthenticate().then(() => {
-        this.$mainStore.articles.load().then(() => {
-          this.$mainStore.articles.getArticlesgroupedByName().then(() => {});
-        });
+        this.user = this.$mainStore.user.data;
       });
     }
   }

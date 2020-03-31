@@ -6,15 +6,21 @@ module.exports = {
   },
   plugins: ["vue"],
   extends: [
-    "plugin:vue/essential",
     "plugin:prettier/recommended",
-    "eslint:recommended"
+
+    "eslint:recommended",
+    "plugin:vue/essential"
   ],
   rules: {
     "vue/component-name-in-template-casing": ["error", "PascalCase"],
     "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
-    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
-    "prettier/prettier": "error"
+    "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off"
+    // "prettier/prettier": [
+    //   "error",
+    //   {
+    //     endOfLine: "auto"
+    //   }
+    // ]
   },
   globals: {
     ga: true, // Google Analytics

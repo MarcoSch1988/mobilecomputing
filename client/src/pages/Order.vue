@@ -7,6 +7,7 @@
             <q-input
               v-model="newArticle"
               label="Artikel"
+              maxlength="30"
               @keydown.enter.prevent
               @keydown.enter="addItem()"
             >
@@ -55,11 +56,12 @@
           <q-list separator>
             <q-item v-for="item in closedArticles" :key="item._id" dense>
               <q-item-section>{{ item.text }}</q-item-section>
-              <q-item-section top side
-                >{{ item.boughtAt | normalDate }} <br />
+              <q-item-section top side>
+                {{ item.boughtAt | normalDate }}
+                <br />
                 {{ item.buyer.firstname }}
-                {{ item.buyer.surname }}</q-item-section
-              >
+                {{ item.buyer.surname }}
+              </q-item-section>
             </q-item>
           </q-list>
         </q-expansion-item>
