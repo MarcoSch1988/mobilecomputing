@@ -5,15 +5,10 @@
         <h5
           v-if="articlesWithoutOld.length < 1"
           class="text-center text-primary"
-        >
-          Keine Einkäufe in Ihrer Umgebung verfügbar
-        </h5>
+        >Keine Einkäufe in Ihrer Umgebung verfügbar</h5>
         <q-list>
           <div v-for="article in articlesWithoutOld" :key="article.id">
-            <q-expansion-item
-              v-if="article.isSelected"
-              style="border-bottom: solid 1px #CCCCCC"
-            >
+            <q-expansion-item v-if="article.isSelected" style="border-bottom: solid 1px #CCCCCC">
               <template v-slot:header>
                 <q-item-section>
                   <q-item-label
@@ -21,11 +16,11 @@
                     style="display: flex; justify-content: space-between"
                   >
                     {{ article.name }}
-                    <span class="text-caption text-grey-7"
-                      >{{ openArticles(article) }}/{{
-                        article.items.length
-                      }}</span
-                    >
+                    <span class="text-caption text-grey-7">
+                      {{ openArticles(article) }}/{{
+                      article.items.length
+                      }}
+                    </span>
                   </q-item-label>
                   <q-item-label caption>
                     {{ article.address.street }} -
@@ -54,9 +49,7 @@
                     <div
                       class="text-h5"
                       style="position: absolute; top:0px; left:5px"
-                    >
-                      {{ item.text | subStr }}
-                    </div>
+                    >{{ item.text | subStr }}</div>
                     <div class="text-caption q-pt-sm">{{ item.text }}</div>
                   </div>
                 </q-btn>
@@ -70,8 +63,8 @@
         <q-card>
           <q-toolbar>
             <q-icon name="reply" style="font-size: 2em;" />
-            <q-toolbar-title
-              ><span class="text-weight-bold">Rückgängig</span>
+            <q-toolbar-title>
+              <span class="text-weight-bold">Rückgängig</span>
             </q-toolbar-title>
 
             <q-btn flat round dense icon="close" v-close-popup />
@@ -82,12 +75,7 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn
-              v-close-popup
-              label="Abbrechen"
-              color="primary"
-              class="q-pa-xs"
-            />
+            <q-btn v-close-popup label="Abbrechen" color="primary" class="q-pa-xs" />
             <q-btn
               v-close-popup
               label="Ja"
