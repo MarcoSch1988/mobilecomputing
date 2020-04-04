@@ -1,0 +1,6 @@
+Channels neben RestAPI für Echtzeitfähigkeit verwenden
+oder Timer für Polling alle 1000ms bei REST
+Bei Sockets könnte ein zweiter FeathersClient initialisiert werden auf dem die Channels laufen
+
+Text-Wrap bei abgeschlossenen Einkäufen
+    (Weiß noch nicht wie, weil es sich um 2 Item Sections handelt die übereinander "verlaufen" --> Quasar googeln)

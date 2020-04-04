@@ -3,7 +3,7 @@
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
         <h5
-          v-if="articlesWithoutOld.length < 1 && Loading.isActive === false"
+          v-if="articlesWithoutOld.length < 1 && isLoading === false"
           class="text-center text-primary"
         >
           Keine Einkäufe in Ihrer Umgebung verfügbar
@@ -81,7 +81,7 @@
 
             <q-btn flat round dense icon="close" v-close-popup />
           </q-toolbar>
-          <q-card-section style="font-size: 1.4em">
+          <q-card-section style="font-size: 1.4em; word-wrap: break-word;">
             Wollen Sie den Einkauf von
             <b>{{ reactivateAlert.item.text }}</b> rückgängig machen?
           </q-card-section>
@@ -121,7 +121,7 @@ export default {
   data() {
     return {
       articles: [],
-      isloading: false,
+      isLoading: false,
       reactivateAlert: {
         active: false,
         item: {}
@@ -169,6 +169,7 @@ export default {
     loadData() {
       //Timeout wahrscheinlich notwendig, weil was wenn keine Internetverbindung!?
       //Oder übernimmt das der Service Worker?
+      this.isLoading = true;
       Loading.show();
       this.$mainStore.articles
         .load()
@@ -179,6 +180,7 @@ export default {
         })
         .finally(() => {
           Loading.hide();
+          this.isLoading = false;
         });
 
       // this.articles = this.$mainStore.articles.dataGrouped;

@@ -54,9 +54,13 @@
             </q-item-section>
           </template>
           <q-list separator>
-            <q-item v-for="item in closedArticles" :key="item._id" dense>
+            <q-item
+              v-for="item in closedArticles.slice().reverse()"
+              :key="item._id"
+              dense
+            >
               <q-item-section>{{ item.text }}</q-item-section>
-              <q-item-section top side>
+              <q-item-section top side class="q-mr-sm">
                 {{ item.boughtAt | normalDate }}
                 <br />
                 {{ item.buyer.firstname }}
