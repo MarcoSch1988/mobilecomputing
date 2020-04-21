@@ -1,20 +1,32 @@
-import MainStore from "../stores/mainStore";
-
+// function isLoggedIn_OLD(to, from, next) {
+//   //Überprüfen ob ein JWT gestezt ist, also der Benutzer eingeloggt ist.
+//   //Sollte jemand einen ungültigen JWT erzeugen um ungültig Zugang zu erhalten,
+//   //erhält er vom Backend keine Daten --> Das hier ist also nicht wirklich zur Sicherheit
+//   //Sondern nur für den "komfort"
+//   MainStore.user
+//     .reAuthenticate()
+//     .then(next())
+//     .catch(err => {
+//       console.log(err);
+//       next({
+//         path: "/login",
+//         params: { nextUrl: to.fullPath }
+//       });
+//     });
+// }
 function isLoggedIn(to, from, next) {
   //Überprüfen ob ein JWT gestezt ist, also der Benutzer eingeloggt ist.
   //Sollte jemand einen ungültigen JWT erzeugen um ungültig Zugang zu erhalten,
   //erhält er vom Backend keine Daten --> Das hier ist also nicht wirklich zur Sicherheit
   //Sondern nur für den "komfort"
-  MainStore.user
-    .reAuthenticate()
-    .then(next())
-    .catch(err => {
-      console.log(err);
-      next({
-        path: "/login",
-        params: { nextUrl: to.fullPath }
-      });
+  if (localStorage.getItem("feathers-jwt") === null) {
+    next({
+      path: "/login",
+      params: { nextUrl: to.fullPath }
     });
+  } else {
+    next();
+  }
 }
 
 const routes = [

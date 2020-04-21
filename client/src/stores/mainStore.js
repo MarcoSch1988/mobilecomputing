@@ -1,16 +1,28 @@
-import FeathersClient from "../boot/feathersClientConfig";
+//import FeathersRestClient from "../boot/feathersRestClientConfig";
+//import FeathersSocketClient from "../boot/feathersSocketClientConfig";
+import FeathersRestClient from "../boot/feathersSocketClientConfig"; //Fake (Socket --> Rest) damits trotzdem funktioniert
 
-FeathersClient.service("articles").on("patched", message => {
-  console.log("article patched", message);
-  MainStore.listener.executeAll();
-});
-FeathersClient.service("articles").on("created", message => {
-  console.log("article created", message);
-});
-FeathersClient.service("articles").on("removed", message => {
-  console.log("article deleted", message);
+//Hier könnte der zweite FeathersClient eingebunden werden
+//Dieser soll über Sockets die Events verarbeiten
+//In der Shopping und Order Seite könnte ein Event Listener platziert werden
+//Sobald die events eintreten, werden die Event Listener ausgeführt
+//Diese aktualisieren die Daten der jeweilgen Seite (order, shopping)
+//ABER vll kümmert sich vue automatisch um die aktualisierung wenn sich die Daten hier ändern?!
+//ABER wenn vue sich darüm kümmert (also das reine aktualisieren der Daten-arrays hier im Store reicht)
+//dann muss irgendwie das neu zeichnen der jeweiligen Seite getriggert werden
+
+//Hier zu Socket ausbessern
+FeathersRestClient.service("articles").on("patched", message => {
   MainStore.articles.load();
+  console.log("Socket Listeneder: Patched", message);
 });
+// FeathersSocketClient.service("articles").on("created", message => {
+//   console.log("article created", message);
+// });
+// FeathersSocketClient.service("articles").on("removed", message => {
+//   console.log("article deleted", message);
+//   MainStore.articles.load();
+// });
 
 const MainStore = {
   listener: {
@@ -26,22 +38,38 @@ const MainStore = {
     data: [],
     dataGrouped: [],
     async load() {
-      console.log("Load Data");
+      console.log("Main Store: Load Data", navigator.onLine);
+
+      if (navigator.onLine === false) {
+        console.log("OFFLINE; return localData");
+        this.data = JSON.parse(localStorage.getItem("articles"));
+        return this.data;
+      }
+
+      await FeathersRestClient.authenticate(); //muss vorher ausgeführt werden damit der JWT-Auth-Token mitgesendet wird
+
       return (
-        FeathersClient.service("articles")
+        FeathersRestClient.service("articles")
           //.find({ query: { status: "open" } })
           .find({ query: {} })
           .then(result => {
-            this.data = result.data;
-            return result.data;
+            localStorage.setItem("articles", JSON.stringify(result.data));
+            this.data = JSON.parse(localStorage.getItem("articles"));
+            //this.data = result.data;
+            console.log("Online; return online data");
+            return this.data;
+          })
+          .catch(err => {
+            console.log("Load error: ", err);
           })
       );
     },
     async add(newArticle) {
-      return FeathersClient.service("articles")
+      return FeathersRestClient.service("articles")
         .create(newArticle)
         .then(async result => {
           await this.data.push(result);
+          await this.getArticlesgroupedByName();
           return result;
         })
         .catch(err => {
@@ -49,10 +77,11 @@ const MainStore = {
         });
     },
     async delete(itemId) {
-      return FeathersClient.service("articles")
+      return FeathersRestClient.service("articles")
         .remove(itemId)
         .then(async () => {
           this.data = await this.data.filter(obj => obj._id != itemId);
+          await this.getArticlesgroupedByName();
           return this.data;
         })
         .catch(err => {
@@ -60,7 +89,7 @@ const MainStore = {
         });
     },
     async buy(item) {
-      return FeathersClient.service("articles")
+      return FeathersRestClient.service("articles")
         .patch(item._id, { status: "closed" })
         .then(async () => {
           await this.load();
@@ -71,7 +100,7 @@ const MainStore = {
         });
     },
     async reactivate(item) {
-      return FeathersClient.service("articles")
+      return FeathersRestClient.service("articles")
         .patch(item._id, { status: "open" })
         .then(async () => {
           await this.load();
@@ -125,7 +154,7 @@ const MainStore = {
         ...registrationData
       };
 
-      return FeathersClient.api.user
+      return FeathersRestClient.api.user
         .create(data)
         .then(result => {
           return result;
@@ -135,18 +164,17 @@ const MainStore = {
         });
     },
     async reAuthenticate() {
-      const reAuth = await FeathersClient.authenticate();
+      const reAuth = await FeathersRestClient.authenticate();
       this.data = reAuth.user;
       return reAuth;
     },
     async login(loginData) {
-      return FeathersClient.authenticate({
+      return FeathersRestClient.authenticate({
         strategy: "local",
         ...loginData
       })
         .then(result => {
           this.data = result.user;
-          console.log(this.data);
           return result;
         })
         .catch(err => {

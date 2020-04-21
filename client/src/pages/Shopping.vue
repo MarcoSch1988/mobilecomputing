@@ -6,7 +6,8 @@
           v-if="articlesWithoutOld.length < 1 && isLoading === false"
           class="text-center text-primary"
         >
-          Keine Einkäufe in Ihrer Umgebung verfügbar
+          Keine Einkäufe in Ihrer Umgebung verfügbar oder Sie haben keine
+          Internetverbindung
         </h5>
         <q-list>
           <div v-for="article in articlesWithoutOld" :key="article.id">
@@ -163,12 +164,35 @@ export default {
   },
   mounted() {
     this.loadData();
+
+    //Event Listener
+    this.$feathersSocket.service("articles").on("patched", async message => {
+      console.log("socket patched", message);
+      //this.loadData();
+      this.$forceUpdate();
+    });
+
+    //Event Listener
+    this.$feathersSocket.service("articles").on("created", async message => {
+      console.log("socket patched", message);
+      this.loadData();
+      this.$forceUpdate();
+    });
+
+    //Event Listener
+    this.$feathersSocket.service("articles").on("removed", async message => {
+      console.log("socket removed", message);
+      this.loadData();
+      this.$forceUpdate();
+    });
   },
 
   methods: {
     loadData() {
-      //Timeout wahrscheinlich notwendig, weil was wenn keine Internetverbindung!?
-      //Oder übernimmt das der Service Worker?
+      console.log("Shopping: Load data");
+      //Timeout notwendig, weil was wenn keine Internetverbindung!?
+      //Oder übernimmt das den Service Worker erledigen lassen?
+
       this.isLoading = true;
       Loading.show();
       this.$mainStore.articles
@@ -186,8 +210,17 @@ export default {
       // this.articles = this.$mainStore.articles.dataGrouped;
     },
     boughtItem(item) {
+      if (navigator.onLine === true) {
+        //Wenn App eine Internetverbindung hat, gehe ich davon aus, dass der Status erfolgreich gesetzt werden kann
+        //Sollte es dennoch nicht möglich sein, wird dieser Status am Ende dieser FUnktion richtig gestellt,
+        //weil im MainStore die Daten neu geladen werden und anschließend diese Form aktualisiert wird.
+
+        item.status = "closed";
+      }
+
       this.$mainStore.articles.buy(item).then(() => {
         this.articles = this.$mainStore.articles.dataGrouped;
+        console.log("bought item");
       });
     },
     openReactivateDialog(item) {
@@ -197,6 +230,7 @@ export default {
       };
     },
     reactivateItem(item) {
+      item.status = "closed"; //Damit keine Verzögerung im UI zu sehen ist --> Falls nicht erfolgreich wirds eh gleich wieder zurückgesetzt
       this.$mainStore.articles.reactivate(item).then(() => {
         this.articles = this.$mainStore.articles.dataGrouped;
       });

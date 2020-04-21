@@ -16,8 +16,18 @@
           {{ title }}
         </q-toolbar-title>
         <q-toolbar-title v-if="title === ''" class="titleclass">
-          <span>I</span>ch<span>G</span>eh<span>E</span>inkaufen
+          IchGehEinkaufen
         </q-toolbar-title>
+
+        <q-btn
+          v-if="online === false"
+          flat
+          dense
+          round
+          class="text-red"
+          icon="warning"
+          @click="dialogOffline = !dialogOffline"
+        />
 
         <q-btn
           v-if="['home'].includes($route.name)"
@@ -30,6 +40,12 @@
         />
       </q-toolbar>
     </q-header>
+
+    <q-dialog v-model="dialogOffline" position="top">
+      <q-banner inline-actions class="text-white bg-red">
+        Sie haben keine Internetverbindung. Die App ist offline.
+      </q-banner>
+    </q-dialog>
 
     <q-page-container>
       <router-view />
@@ -51,9 +67,22 @@ export default {
   name: "MainLayout",
   data() {
     return {
-      title: ""
+      title: "",
+      online: navigator.onLine,
+      dialogOffline: false
     };
   },
+  mounted() {
+    window.addEventListener("online", () => {
+      this.online = navigator.onLine;
+      this.dialogOffline = false;
+    });
+    window.addEventListener("offline", () => {
+      this.online = navigator.onLine;
+      this.dialogOffline = true;
+    });
+  },
+
   computed: {
     currentYear() {
       console.log(Date.now().getYear());

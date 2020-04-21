@@ -41,7 +41,7 @@ export default {
     };
   },
   mounted() {
-    this.loadData();
+    // this.loadData();
     // this.$mainStore.user.reAuthenticate().then(() => {
     //   this.user = this.$mainStore.user.data;
     //   this.$mainStore.articles.load();

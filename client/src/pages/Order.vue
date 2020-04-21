@@ -118,7 +118,7 @@ export default {
     this.$mainStore.listener.add(this.givemepush);
 
     //Event Listener
-    this.$feathers.service("articles").on("patched", async message => {
+    this.$feathersSocket.service("articles").on("patched", async message => {
       console.log("locally patched", message);
       this.articles = await this.$mainStore.articles.load();
       this.$forceUpdate();

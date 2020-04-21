@@ -1,0 +1,13 @@
+({
+  "type": "chrome",
+  "request": "launch",
+  "name": "Quasar App: chrome",
+  "url": "http://localhost:8080",
+  "webRoot": "${workspaceFolder}/src",
+  "targetTypes": ["page", "webview"],
+  "breakOnLoad": true,
+  "sourceMapPathOverrides": {
+    "webpack:///./src/*": "${webRoot}/*"
+  },
+  "runtimeExecutable": "C:\\Eigene Programme\\Internet\\Vivaldi\\Application\\vivaldi.exe"
+}
