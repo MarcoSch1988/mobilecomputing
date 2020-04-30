@@ -1,10 +1,11 @@
 const { authenticate } = require("@feathersjs/authentication").hooks;
 const { populate } = require("feathers-hooks-common");
 const { setField } = require("feathers-authentication-hooks");
+const { Conflict } = require("@feathersjs/errors");
 
 const limitToUser = setField({
   from: "params.user._id",
-  as: "params.query.ordererId"
+  as: "params.query.ordererId",
 });
 
 module.exports = {
@@ -14,20 +15,44 @@ module.exports = {
     get: [],
     create: [
       limitToUser,
-      hook => {
+      (hook) => {
+        //Sicherstellen dass nur Bestellungen für den eigenen Benutzer angelegt werden können
         hook.data.ordererId = hook.params.user._id;
-      }
+      },
+      async (context) => {
+        //Find same entries
+
+        await context.app
+          .service("articles")
+          .find({
+            query: {
+              ordererId: context.params.user._id,
+              status: "open",
+              text: context.data.text,
+            },
+          })
+          .then((data) => {
+            if (data.data.length) {
+              throw new Conflict("sync", {
+                errors: {
+                  type: "already exists",
+                  text: context.data.text,
+                },
+              });
+            }
+          });
+      },
     ],
     update: [],
     patch: [
-      hook => {
+      (hook) => {
         if (hook.data.status === "closed") {
           hook.data.buyerId = hook.params.user._id;
           hook.data.boughtAt = new Date();
         }
-      }
+      },
     ],
-    remove: [limitToUser]
+    remove: [limitToUser],
   },
 
   after: {
@@ -40,21 +65,29 @@ module.exports = {
               service: "users",
               nameAs: "orderer",
               parentField: "ordererId",
-              childField: "_id"
+              childField: "_id",
             },
             {
               service: "users",
               nameAs: "buyer",
               parentField: "buyerId",
-              childField: "_id"
-            }
-          ]
-        }
-      })
+              childField: "_id",
+            },
+          ],
+        },
+      }),
     ],
     find: [
-      hook => {
-        hook.result.data.forEach(item => {
+      (hook) => {
+        //Vorher prüfen ob ein User mitübergeben wurde (bei Aufrufen innerhalb des Backends ist das nicht der Fall)
+        //Sonst würde ein Fehler aufkommen, weil keine Latitude und Logitude exisitieren
+        if (!hook.params.user) return;
+
+        //Berechnen der Abstände
+
+        //TODO
+        //Es wäre besser gewesen die Distanz zugehörig zum User zu ermitteln?!
+        hook.result.data.forEach((item) => {
           item.orderer.distance = distance(
             item.orderer.latitude,
             item.orderer.longitude,
@@ -66,15 +99,15 @@ module.exports = {
           //console.log(item.distance);
         });
         hook.result.data = hook.result.data.filter(
-          item => item.orderer.distance <= 500
+          (item) => item.orderer.distance <= 500
         );
-      }
+      },
     ],
     get: [],
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [],
   },
 
   error: {
@@ -84,8 +117,8 @@ module.exports = {
     create: [],
     update: [],
     patch: [],
-    remove: []
-  }
+    remove: [],
+  },
 };
 
 function distance(lat1, lon1, lat2, lon2, unit) {

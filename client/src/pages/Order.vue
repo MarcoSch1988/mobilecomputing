@@ -2,12 +2,22 @@
   <q-page class="flex q-py-sm">
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs">
+        <q-banner
+          v-if="alreadyExists"
+          dense
+          fit
+          widht="100%"
+          class="text-red text-center"
+        >
+          <b>Der Artikel '{{ newArticle }}' ist bereits vorhanden</b>
+        </q-banner>
         <q-form>
           <q-card-section>
             <q-input
               v-model="newArticle"
               label="Artikel"
               maxlength="30"
+              @input="alreadyExists = false"
               @keydown.enter.prevent
               @keydown.enter="addItem()"
             >
@@ -88,7 +98,8 @@ export default {
   data() {
     return {
       newArticle: "",
-      articles: this.$mainStore.articles.data
+      articles: this.$mainStore.articles.data,
+      alreadyExists: false
     };
   },
 
@@ -112,17 +123,37 @@ export default {
     }
   },
   mounted() {
+    //this.$mainStore.user.reAuthenticate(); //Immer zuerst aufrufen damit aktueller Benutzer geladen ist
     this.loadData();
 
     //Example Own Event Listener :-)
     this.$mainStore.listener.add(this.givemepush);
 
     //Event Listener
-    this.$feathersSocket.service("articles").on("patched", async message => {
-      console.log("locally patched", message);
-      this.articles = await this.$mainStore.articles.load();
-      this.$forceUpdate();
+    // this.$feathersSocket.service("articles").on("patched", () => {
+    //   if (navigator.onLine) {
+    //     this.$mainStore.articles.load().then(() => {
+    //       this.articles = this.$mainStore.articles.data;
+    //     });
+    //   }
+    // });
+    //Event Listener
+    this.$feathersSocket.service("articles").on("created", messages => {
+      // if (navigator.onLine) {
+      //   this.$mainStore.articles.load().then(() => {
+      //     this.articles = this.$mainStore.articles.data;
+      //   });
+      // }
+      console.log("Socket-Event-Created: ", messages);
     });
+    //Event Listener
+    // this.$feathersSocket.service("articles").on("removed", () => {
+    //   if (navigator.onLine) {
+    //     this.$mainStore.articles.load().then(() => {
+    //       this.articles = this.$mainStore.articles.data;
+    //     });
+    //   }
+    // });
   },
   methods: {
     loadData() {
@@ -133,11 +164,28 @@ export default {
     addItem() {
       if (this.newArticle.length < 1) return;
 
-      const newArticle = {
-        text: this.newArticle
-      };
-      this.$mainStore.articles.add(newArticle);
-      this.newArticle = "";
+      //Prüfen ob bereits vorhanden
+      let filteredArray = this.articles.filter(article => {
+        if (
+          article.status === "open" &&
+          article.text === this.newArticle &&
+          article.ordererId == this.$mainStore.user.data._id
+        ) {
+          return article;
+        }
+      });
+      if (filteredArray.length < 1) {
+        //Artikel noch nicht vorhanden --> Hinzufügen zulassen
+        const newArticle = {
+          text: this.newArticle
+        };
+
+        this.$mainStore.articles.add(newArticle);
+        this.articles = this.$mainStore.articles.data;
+        this.newArticle = "";
+      } else {
+        this.alreadyExists = true;
+      }
     },
     async deleteItem(itemId) {
       this.articles = await this.$mainStore.articles.delete(itemId);

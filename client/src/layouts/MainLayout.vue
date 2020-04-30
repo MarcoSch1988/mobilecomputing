@@ -41,9 +41,28 @@
       </q-toolbar>
     </q-header>
 
-    <q-dialog v-model="dialogOffline" position="top">
+    <q-dialog v-model="dialogOffline" position="top" full-width>
       <q-banner inline-actions class="text-white bg-red">
         Sie haben keine Internetverbindung. Die App ist offline.
+      </q-banner>
+    </q-dialog>
+    <q-dialog v-model="dialogSyncProblems" position="top" full-width>
+      <q-banner
+        v-for="syncProblem in syncProblems"
+        :key="syncProblem.id"
+        dense
+        inline-actions
+        class="text-white bg-red q-mb-xs"
+      >
+        {{ syncProblem.text }}
+        <template v-slot:action>
+          <q-btn
+            flat
+            color="white"
+            icon="close"
+            @click="deleteSyncProblem(syncProblem.id)"
+          />
+        </template>
       </q-banner>
     </q-dialog>
 
@@ -69,13 +88,27 @@ export default {
     return {
       title: "",
       online: navigator.onLine,
-      dialogOffline: false
+      dialogOffline: false,
+      dialogSyncProblems: false,
+      syncProblems: []
     };
   },
   mounted() {
     window.addEventListener("online", () => {
       this.online = navigator.onLine;
       this.dialogOffline = false;
+      setTimeout(() => {
+        //Wir müssen ein wenig warten bis die Queue abgearbeitet wurde
+        //TODO
+        //Ändern auf asynchrone Funktion --> mit Mitteilung wenn response queue fertig ist
+        //FeathersQueue muss bereitschaft melden --> erst dann response-Queue anzeigen
+        this.$mainStore.articles.getSyncProblems().then(result => {
+          this.syncProblems = result;
+          if (result.length > 0) {
+            this.dialogSyncProblems = true;
+          }
+        });
+      }, 1000);
     });
     window.addEventListener("offline", () => {
       this.online = navigator.onLine;
@@ -98,6 +131,19 @@ export default {
   methods: {
     logout() {
       this.$mainStore.user.logout();
+    },
+    deleteSyncProblem(id) {
+      //Lokal entfernen
+      this.syncProblems = this.syncProblems.filter(problem => {
+        console.log("Delete", "ID=" + id + " Array-ID=" + problem.id);
+        return problem.id != id;
+      });
+      if (this.syncProblems.length < 1) {
+        this.dialogSyncProblems = false;
+      }
+
+      //In der Datenbank entfernen
+      this.$mainStore.articles.deleteSyncProblem(id);
     }
   }
 };
