@@ -2,21 +2,24 @@
 //
 // See http://mongoosejs.com/docs/models.html
 // for more of what you can do here.
-module.exports = function(app) {
+const uuid = require("uuid");
+
+module.exports = function (app) {
   const modelName = "articles";
   const mongooseClient = app.get("mongooseClient");
   const { Schema } = mongooseClient;
   const schema = new Schema(
     {
+      _id: { type: String, unique: true, default: uuid.v4() },
       ordererId: { type: Schema.Types.ObjectId, ref: "users" },
       buyerId: { type: Schema.Types.ObjectId, ref: "users", default: null },
       boughtAt: { type: Date, default: null },
       status: { type: String, required: true, default: "open" },
-      text: { type: String, required: true }
+      text: { type: String, required: true },
     },
     {
       timestamps: true,
-      minimize: false //To include the empty fields like 'boughtAt' and 'buyerId'...otherwise patch would not work later
+      minimize: false, //To include the empty fields like 'boughtAt' and 'buyerId'...otherwise patch would not work later
     }
   );
 

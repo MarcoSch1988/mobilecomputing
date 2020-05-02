@@ -48,19 +48,19 @@
     </q-dialog>
     <q-dialog v-model="dialogSyncProblems" position="top" full-width>
       <q-banner
-        v-for="syncProblem in syncProblems"
-        :key="syncProblem.id"
+        v-for="response in queue.responses"
+        :key="response.id"
         dense
         inline-actions
         class="text-white bg-red q-mb-xs"
       >
-        {{ syncProblem.text }}
+        {{ response.text }}
         <template v-slot:action>
           <q-btn
             flat
             color="white"
             icon="close"
-            @click="deleteSyncProblem(syncProblem.id)"
+            @click="deleteResponse(response.id)"
           />
         </template>
       </q-banner>
@@ -90,25 +90,16 @@ export default {
       online: navigator.onLine,
       dialogOffline: false,
       dialogSyncProblems: false,
-      syncProblems: []
+      queue: this.$mainStore.queue
     };
   },
   mounted() {
     window.addEventListener("online", () => {
       this.online = navigator.onLine;
       this.dialogOffline = false;
-      setTimeout(() => {
-        //Wir müssen ein wenig warten bis die Queue abgearbeitet wurde
-        //TODO
-        //Ändern auf asynchrone Funktion --> mit Mitteilung wenn response queue fertig ist
-        //FeathersQueue muss bereitschaft melden --> erst dann response-Queue anzeigen
-        this.$mainStore.articles.getSyncProblems().then(result => {
-          this.syncProblems = result;
-          if (result.length > 0) {
-            this.dialogSyncProblems = true;
-          }
-        });
-      }, 1000);
+      if (this.queue.responses.length > 0) {
+        this.dialogSyncProblems = true;
+      }
     });
     window.addEventListener("offline", () => {
       this.online = navigator.onLine;
@@ -132,18 +123,18 @@ export default {
     logout() {
       this.$mainStore.user.logout();
     },
-    deleteSyncProblem(id) {
+    deleteResponse(id) {
       //Lokal entfernen
-      this.syncProblems = this.syncProblems.filter(problem => {
-        console.log("Delete", "ID=" + id + " Array-ID=" + problem.id);
-        return problem.id != id;
-      });
+      // this.syncProblems = this.syncProblems.filter(problem => {
+      //   console.log("Delete", "ID=" + id + " Array-ID=" + problem.id);
+      //   return problem.id != id;
+      // });
       if (this.syncProblems.length < 1) {
         this.dialogSyncProblems = false;
       }
 
       //In der Datenbank entfernen
-      this.$mainStore.articles.deleteSyncProblem(id);
+      this.$mainStore.queue.deleteResponse(id);
     }
   }
 };

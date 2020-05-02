@@ -23,13 +23,13 @@ export default class FeathersQueue {
     // });
   }
 
-  create(object) {
+  async create(object) {
     this.db.requests.add({ type: "create", data: object }).then(() => {
       this.checkThenExecute();
     });
   }
   remove(objectId) {
-    this.db.requests.add({ type: "remove", id: objectId }).then(() => {
+    this.db.requests.add({ type: "remove", deleteId: objectId }).then(() => {
       this.checkThenExecute();
     });
   }
@@ -42,11 +42,15 @@ export default class FeathersQueue {
     //Alle Einträge der Queue durchlaufen und an das Feathers Backend schicken
     //Die Responses werden in der Response Queue gespeichert.
     this.db.requests
+      .toArray()
+      .then(result => console.log("Whole Queue-Before: ", result));
+
+    this.db.requests
       .toArray(requests =>
-        requests.map(request => {
+        requests.map(async request => {
           switch (request.type) {
             case "create":
-              FeathersSocketClient.service(this.service)
+              await FeathersSocketClient.service(this.service)
                 .create(request.data)
                 .then(async result => {
                   //Erfolgreich an den Server gesendet
@@ -61,8 +65,8 @@ export default class FeathersQueue {
               break;
 
             case "remove":
-              FeathersSocketClient.service("articles")
-                .remove(request.id)
+              await FeathersSocketClient.service("articles")
+                .remove(request.deleteId)
                 .then(async result => {
                   //Erfolgreich an den Server gesendet
                   console.log(result);
@@ -84,6 +88,10 @@ export default class FeathersQueue {
       .catch(err => {
         console.log("Dexie: ", err);
       });
+
+    this.db.requests
+      .toArray()
+      .then(result => console.log("Whole Queue-After: ", result));
   }
 
   async deleteFromQueue(id) {
@@ -97,6 +105,7 @@ export default class FeathersQueue {
       );
   }
   addToResponseQueue(error) {
+    console.log("ResponseQueue: ", error);
     switch (error.errors.type) {
       case "already exists":
         this.db.responses.add({
@@ -104,7 +113,6 @@ export default class FeathersQueue {
         });
         break;
       default:
-        console.log("Feathers Queue: ", error);
         break;
     }
   }

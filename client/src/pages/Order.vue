@@ -98,14 +98,14 @@ export default {
   data() {
     return {
       newArticle: "",
-      articles: this.$mainStore.articles.data,
+      articles: this.$mainStore.articles,
       alreadyExists: false
     };
   },
 
   computed: {
     openArticles: function() {
-      return this.articles.filter(u => {
+      return this.articles.data.filter(u => {
         if (
           u.status === "open" &&
           u.ordererId === this.$mainStore.user.data._id
@@ -115,7 +115,7 @@ export default {
       });
     },
     closedArticles: function() {
-      return this.articles.filter(u => {
+      return this.articles.data.filter(u => {
         return (
           u.status === "closed" && u.ordererId === this.$mainStore.user.data._id
         );
@@ -126,9 +126,6 @@ export default {
     //this.$mainStore.user.reAuthenticate(); //Immer zuerst aufrufen damit aktueller Benutzer geladen ist
     this.loadData();
 
-    //Example Own Event Listener :-)
-    this.$mainStore.listener.add(this.givemepush);
-
     //Event Listener
     // this.$feathersSocket.service("articles").on("patched", () => {
     //   if (navigator.onLine) {
@@ -138,67 +135,45 @@ export default {
     //   }
     // });
     //Event Listener
-    this.$feathersSocket.service("articles").on("created", messages => {
-      // if (navigator.onLine) {
-      //   this.$mainStore.articles.load().then(() => {
-      //     this.articles = this.$mainStore.articles.data;
-      //   });
-      // }
-      console.log("Socket-Event-Created: ", messages);
-    });
-    //Event Listener
+    // this.$feathersSocket.service("articles").on("created", messages => {
+    //   if (navigator.onLine) {
+    //     this.$mainStore.articles.load().then(() => {
+    //       this.articles = this.$mainStore.articles;
+    //     });
+    //   }
+    //   console.log("Socket-Event-Created: ", messages);
+    // });
+    // //Event Listener
     // this.$feathersSocket.service("articles").on("removed", () => {
     //   if (navigator.onLine) {
     //     this.$mainStore.articles.load().then(() => {
-    //       this.articles = this.$mainStore.articles.data;
+    //       this.articles = this.$mainStore.articles;
     //     });
     //   }
     // });
   },
   methods: {
     loadData() {
-      this.$mainStore.articles.load().then(() => {
-        this.articles = this.$mainStore.articles.data;
-      });
+      // this.$mainStore.articles.load().then(() => {
+      //   this.articles = this.$mainStore.articles;
+      // });
+      this.$mainStore.articles.load();
     },
     addItem() {
       if (this.newArticle.length < 1) return;
 
-      //Prüfen ob bereits vorhanden
-      let filteredArray = this.articles.filter(article => {
-        if (
-          article.status === "open" &&
-          article.text === this.newArticle &&
-          article.ordererId == this.$mainStore.user.data._id
-        ) {
-          return article;
-        }
-      });
-      if (filteredArray.length < 1) {
-        //Artikel noch nicht vorhanden --> Hinzufügen zulassen
-        const newArticle = {
-          text: this.newArticle
-        };
-
-        this.$mainStore.articles.add(newArticle);
-        this.articles = this.$mainStore.articles.data;
-        this.newArticle = "";
-      } else {
-        this.alreadyExists = true;
-      }
+      this.$mainStore.articles
+        .add(this.newArticle)
+        .then(() => {
+          this.newArticle = "";
+        })
+        .catch(err => {
+          console.log("AddItem-Error: ", err);
+          this.alreadyExists = true;
+        });
     },
     async deleteItem(itemId) {
-      this.articles = await this.$mainStore.articles.delete(itemId);
-    },
-    onlyOwnArticles: function(articles) {
-      return articles.filter(article => {
-        if (article.ordererId === this.$mainStore.methods.user._id) {
-          return article;
-        }
-      });
-    },
-    givemepush: async function() {
-      console.log("I got pushed");
+      await this.$mainStore.articles.delete(itemId);
     }
   }
 };
