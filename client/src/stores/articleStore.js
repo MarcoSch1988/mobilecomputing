@@ -4,6 +4,7 @@ import User from "./userStore";
 import DexieDB from "./dexieDB";
 import Queue from "./queue";
 import { v4 as uuid } from "uuid";
+import { date } from "quasar";
 
 const articles = {
   construct() {
@@ -11,6 +12,8 @@ const articles = {
 
     //Register Articles to Queue
     Queue.listener.register(articles.update);
+
+    this.registerEventListeners();
 
     //Muss immer sich selbst als Antwort liefern, weil das im MainStore verwendet wird
     return this;
@@ -23,11 +26,29 @@ const articles = {
   deleteLock: false,
   update: () => {
     //Event Listener der aufgerufen wird wenn Änderungen in der Queue erfolgt sind
-    console.log("ListenerLoadData");
-
     articles.load();
   },
+  registerEventListeners() {
+    //Event Listener
+    FeathersSocketClient.service("articles").on("patched", () => {
+      this.load();
+    });
+
+    //Event Listener
+    FeathersSocketClient.service("articles").on("created", () => {
+      this.load();
+    });
+
+    //Event Listener
+    FeathersSocketClient.service("articles").on("removed", () => {
+      this.load();
+    });
+  },
   async load() {
+    //Einfaches Locking um während dem Laden keine Add, Delete, usw. zuzulassen
+    if (this.isLoading === true) return;
+    this.isLoading = true;
+
     //Immer ReAuthenticate vor dem Laden ausführen damit beim Neu-Laden/Refresh der Benutzer bekannt ist
     await User.reAuthenticate();
 
@@ -38,10 +59,12 @@ const articles = {
       console.log("Online --> Return Offline Data");
     }
 
-    await this.updateData();
+    await this.updateData().finally(() => {
+      //Locking wieder aufheben
+      this.isLoading = false;
+    });
   },
   async loadOnlineData() {
-    // this.isLoading = true;
     await FeathersSocketClient.service("articles")
       .find({ query: {} })
       .then(result => {
@@ -59,7 +82,7 @@ const articles = {
         console.log("Load Server-Data: Error", err);
       })
       .finally(() => {
-        // this.isLoading = false;
+        //this.isLoading = false;
       });
   },
 
@@ -69,6 +92,10 @@ const articles = {
   },
 
   async add(newArticle) {
+    //Einfacher Locking-Mechanismus
+    if (this.isLoading === true) return;
+    this.isLoading = true;
+
     //Prüfen ob der Artikel schon vorhanden ist
     const foundArticles = await this.database
       .where({ status: "open", ordererId: User.data._id, text: newArticle })
@@ -97,18 +124,18 @@ const articles = {
         service: this.FeahtersServiceName,
         data: { _id: localArticle._id, text: newArticle } //Mehr Info braucht das Backend nicht, der Rest wird vom Backend erstellt (auch OrdererId zwecks Sicherheit)
       });
-      this.updateData();
+      this.updateData().then(() => {
+        this.isLoading = false;
+      });
     });
   },
 
   async delete(itemId) {
-    if (this.deleteLock === true) return;
-    console.log("Locked");
-    this.deleteLock = true;
-    setTimeout(() => {
-      console.log("UndLocked");
-      this.deleteLock = false;
-    }, 500);
+    //Einfacher Locking-Mechanismus -> Sonst kommt es beim schnellen Löschen zu Problemen
+    if (this.isLoading === true) return;
+    this.isLoading = true;
+
+    //Alternative zum Locking wäre ein kurzes Timeout um zu schnelles Löschen zu verhindern
 
     //Artikel suchen
     const foundArticle = await this.database.get({ _id: itemId });
@@ -129,7 +156,9 @@ const articles = {
         });
 
         //Daten aktualisieren -> Aktualisiert FrontEnd mit
-        this.updateData();
+        this.updateData().then(() => {
+          this.isLoading = false;
+        });
       });
   },
 
@@ -190,6 +219,37 @@ const articles = {
 
     this.dataGrouped = returnArray;
     return returnArray;
+  },
+  setArticlesWithoutOld() {
+    const maxAgeInHours = 24;
+
+    //Article kopieren
+    let myarticles = Array.from(this.articles.dataGrouped);
+
+    let asd = myarticles.filter(article => {
+      if (article.isSelected === false) {
+        return;
+      }
+      article.items = article.items.filter(item => {
+        //Prüfen ob Status = closed und boughtAt-Date älter als maxAgeinHours
+        //Nur die Zurücklieferen die nicht zu alt sind
+
+        let dateDiffInHours = date.getDateDiff(
+          Date.now(),
+          item.boughtAt,
+          "hours"
+        );
+        if (
+          (item.status === "closed" && dateDiffInHours <= maxAgeInHours) ||
+          item.status === "open"
+        ) {
+          return item;
+        }
+      });
+      return article;
+    });
+
+    this.dataGroupedWithoutOld = asd;
   }
 };
 
