@@ -115,11 +115,18 @@ export default {
       });
     },
     closedArticles: function() {
-      return this.articles.data.filter(u => {
-        return (
-          u.status === "closed" && u.ordererId === this.$mainStore.user.data._id
-        );
-      });
+      return this.articles.data
+        .filter(u => {
+          return (
+            u.status === "closed" &&
+            u.ordererId === this.$mainStore.user.data._id
+          );
+        })
+        .sort((a, b) => {
+          //Berechnet die Datumsdifferenz in Sekunden
+          //und sortiert anhand der Differenz das Array --> Neueste zuerst
+          return date.getDateDiff(a.boughtAt, b.boughtAt, "seconds");
+        });
     }
   },
   mounted() {

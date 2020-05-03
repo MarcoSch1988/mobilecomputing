@@ -52,7 +52,31 @@ module.exports = {
         }
       },
     ],
-    remove: [limitToUser],
+    remove: [
+      limitToUser,
+      async (context) => {
+        //Vor Löschen überprüfen ob dieser Artikel bereits closed ist
+        //Kann vorkommen wenn jemand offline löscht, der Artikel aber zuvor von einem Online-User gekauft wurde
+        await context.app
+          .service("articles")
+          .find({
+            query: {
+              _id: context.id,
+              status: "closed",
+            },
+          })
+          .then((data) => {
+            if (data.data.length > 0) {
+              throw new Conflict("sync", {
+                errors: {
+                  type: "already patched",
+                  text: data.data[0].text,
+                },
+              });
+            }
+          });
+      },
+    ],
   },
 
   after: {

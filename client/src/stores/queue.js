@@ -3,7 +3,7 @@ import DexieDB from "./dexieDB";
 
 const Queue = {
   construct() {
-    window.addEventListener("online", async () => {
+    window.addEventListener("online", () => {
       this.optimiseThenExectue();
     });
 
@@ -46,6 +46,10 @@ const Queue = {
   async execute() {
     //Die Queue mit dem Server synchonisieren
 
+    //Für Demozecke, damit Queue nur ausgeführt wird wenn online
+    if (navigator.onLine === false) return;
+    console.log("Queue executed");
+
     //Auslesen der Datenbank und sofort löschen
     const AllRequests = await this.requestsDB.toArray();
     //Löschen der Einträge --> Eigentlich müsste man hier einen lock einführen.
@@ -66,8 +70,8 @@ const Queue = {
                 //Erfolgreich an den Server gesendet
                 //console.log("Successfully synced: " + entry.type, result);
               })
-              .catch(err => {
-                this.addToResponseQueue(err);
+              .catch(async err => {
+                await this.addToResponseQueue(err);
               });
             break;
           case "remove":
@@ -77,9 +81,9 @@ const Queue = {
                 //Erfolgreich an den Server gesendet
                 //console.log("Successfully synced: " + entry.type, result);
               })
-              .catch(err => {
+              .catch(async err => {
                 //Feather schickt immer einen Error wenn das Sync nicht funktioniert hat
-                this.addToResponseQueue(err);
+                await this.addToResponseQueue(err);
               });
             break;
           case "patch":
@@ -104,18 +108,43 @@ const Queue = {
     });
   },
   addToResponseQueue(error) {
-    console.log("ResponseQueue: ", error);
-    switch (error.errors.type) {
-      case "already exists":
-        this.responsesDB
-          .add({
-            text: "Der Artikel '" + error.errors.text + "' existiert bereits"
-          })
-          .then(async () => {
-            this.responses = await this.responsesDB.toArray();
-          });
+    //console.log("ResponseQueue: ", error);
+    switch (error.name) {
+      case "Conflict":
+        //Alredy exists error
+        if (error.errors.type == "already exists") {
+          this.responsesDB
+            .add({
+              text: "Der Artikel '" + error.errors.text + "' existiert bereits"
+            })
+            .then(async () => {
+              this.responses = await this.responsesDB.toArray();
+            });
+        }
+        //Alredy patched error
+        if (error.errors.type == "already patched") {
+          this.responsesDB
+            .add({
+              text:
+                "Der Artikel '" +
+                error.errors.text +
+                "' wurde bereits gekauft und konnte deshalb nicht gelöscht werden"
+            })
+            .then(async () => {
+              this.responses = await this.responsesDB.toArray();
+            });
+        }
+
+        break;
+      case "NotFound":
+        //Artikel der Lokal gelöscht wurde, wurde in der Zwischenzeit schon online gelöscht
+        //Kein Benachrichtigung notwendig
+        console.log(
+          "Der Artikel mit der id=" + error.hook.id + " wurde bereits gelöscht"
+        );
         break;
       default:
+        console.log("Default:", error.errors.type);
         break;
     }
   },

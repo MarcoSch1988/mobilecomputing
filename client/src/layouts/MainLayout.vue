@@ -90,7 +90,8 @@ export default {
       online: navigator.onLine,
       dialogOffline: false,
       dialogSyncProblems: false,
-      queue: this.$mainStore.queue
+      queue: this.$mainStore.queue,
+      articles: this.$mainStore.articles
     };
   },
   mounted() {
@@ -129,12 +130,14 @@ export default {
       //   console.log("Delete", "ID=" + id + " Array-ID=" + problem.id);
       //   return problem.id != id;
       // });
-      if (this.syncProblems.length < 1) {
-        this.dialogSyncProblems = false;
-      }
-
       //In der Datenbank entfernen
+
       this.$mainStore.queue.deleteResponse(id);
+      setTimeout(() => {
+        if (this.queue.responses.length < 1) {
+          this.dialogSyncProblems = false;
+        }
+      }, 300);
     }
   }
 };
@@ -146,5 +149,17 @@ export default {
 }
 .titleclass span {
   font-weight: bold;
+}
+#overlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
 }
 </style>
