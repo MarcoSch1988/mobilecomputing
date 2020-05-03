@@ -130,34 +130,7 @@ export default {
     }
   },
   mounted() {
-    //this.$mainStore.user.reAuthenticate(); //Immer zuerst aufrufen damit aktueller Benutzer geladen ist
     this.loadData();
-
-    //Event Listener
-    // this.$feathersSocket.service("articles").on("patched", () => {
-    //   if (navigator.onLine) {
-    //     this.$mainStore.articles.load().then(() => {
-    //       this.articles = this.$mainStore.articles.data;
-    //     });
-    //   }
-    // });
-    //Event Listener
-    // this.$feathersSocket.service("articles").on("created", messages => {
-    //   if (navigator.onLine) {
-    //     this.$mainStore.articles.load().then(() => {
-    //       this.articles = this.$mainStore.articles;
-    //     });
-    //   }
-    //   console.log("Socket-Event-Created: ", messages);
-    // });
-    // //Event Listener
-    // this.$feathersSocket.service("articles").on("removed", () => {
-    //   if (navigator.onLine) {
-    //     this.$mainStore.articles.load().then(() => {
-    //       this.articles = this.$mainStore.articles;
-    //     });
-    //   }
-    // });
   },
   methods: {
     loadData() {

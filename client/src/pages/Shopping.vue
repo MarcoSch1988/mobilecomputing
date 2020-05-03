@@ -1,5 +1,10 @@
 <template>
   <q-page class="flex q-py-sm">
+    <q-dialog v-model="dialogOffline" position="top" full-width>
+      <q-banner inline-actions class="text-white bg-red">
+        Im Offline-Modus nicht möglich
+      </q-banner>
+    </q-dialog>
     <div class="row fit justify-center">
       <div class="col-xl-3 col-md-6 col-xs-12 q-px-xs q-pt-md">
         <h5
@@ -123,6 +128,7 @@ export default {
     return {
       articles: this.$mainStore.articles,
       isLoading: false,
+      dialogOffline: false,
       reactivateAlert: {
         active: false,
         item: {}
@@ -176,20 +182,39 @@ export default {
       });
     },
     boughtItem(item) {
-      this.$mainStore.articles.buy(item).then(() => {
-        console.log("bought item");
-      });
+      //Item kaufen
+      //--> Offline --> Benutzer benachrichtigen und nach 1 Sekunde ausblenden
+
+      if (navigator.onLine == false) {
+        //--> Offline --> Benutzer benachrichtigen und nach 1 Sekunde ausblenden
+        this.showOfflineNotification();
+      } else {
+        this.$mainStore.articles.buy(item);
+      }
     },
     openReactivateDialog(item) {
-      this.reactivateAlert = {
-        active: true,
-        item: item
-      };
+      //Reaktivieren des Items
+      //Nur möglich wenn Online
+      if (navigator.onLine == false) {
+        //--> Offline --> Benutzer benachrichtigen und nach 1 Sekunde ausblenden
+        this.showOfflineNotification();
+      } else {
+        this.reactivateAlert = {
+          active: true,
+          item: item
+        };
+      }
     },
     reactivateItem(item) {
       this.$mainStore.articles.reactivate(item).then(() => {
         console.log("Reactivated: ", item);
       });
+    },
+    showOfflineNotification() {
+      this.dialogOffline = true;
+      setTimeout(() => {
+        this.dialogOffline = false;
+      }, 1000);
     },
 
     openArticles: function(article) {

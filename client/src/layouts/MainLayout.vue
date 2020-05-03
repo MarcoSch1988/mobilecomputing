@@ -98,9 +98,13 @@ export default {
     window.addEventListener("online", () => {
       this.online = navigator.onLine;
       this.dialogOffline = false;
-      if (this.queue.responses.length > 0) {
-        this.dialogSyncProblems = true;
-      }
+      setTimeout(() => {
+        //Weil die Responses sofort nach dem Online gehen noch nicht fertig sein können
+        //Besser wäre hier ein Listener anstatt einfachem Timeout
+        if (this.queue.responses.length > 0) {
+          this.dialogSyncProblems = true;
+        }
+      }, 1000);
     });
     window.addEventListener("offline", () => {
       this.online = navigator.onLine;

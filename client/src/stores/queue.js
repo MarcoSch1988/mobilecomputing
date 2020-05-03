@@ -27,7 +27,7 @@ const Queue = {
   },
   requestsDB: DexieDB.requests,
   responsesDB: DexieDB.responses,
-
+  isWorking: false,
   responses: [],
 
   add(object) {
@@ -45,6 +45,7 @@ const Queue = {
   },
   async execute() {
     //Die Queue mit dem Server synchonisieren
+    this.isWorking = true;
 
     //Für Demozecke, damit Queue nur ausgeführt wird wenn online
     if (navigator.onLine === false) return;
@@ -60,48 +61,33 @@ const Queue = {
     //Umstellen auf Durchlauf der Datenbank und löschen nach jedem einzelnen Element
     //Sonst hat man wie zuvor erwähnt Probleme wenn neue Einträge eintreffen
 
-    await Promise.all(
-      AllRequests.map(async entry => {
-        switch (entry.type) {
-          case "create":
-            await FeathersSocketClient.service(entry.service)
-              .create(entry.data)
-              .then(() => {
-                //Erfolgreich an den Server gesendet
-                //console.log("Successfully synced: " + entry.type, result);
-              })
-              .catch(async err => {
-                await this.addToResponseQueue(err);
-              });
-            break;
-          case "remove":
-            await FeathersSocketClient.service("articles")
-              .remove(entry.data._id)
-              .then(() => {
-                //Erfolgreich an den Server gesendet
-                //console.log("Successfully synced: " + entry.type, result);
-              })
-              .catch(async err => {
-                //Feather schickt immer einen Error wenn das Sync nicht funktioniert hat
-                await this.addToResponseQueue(err);
-              });
-            break;
-          case "patch":
-            break;
+    //TODO
+    //Funktion mitten in Funktion --> Verschönern
+    //ABER VORSICHT: Die komische Konstellation war notwendig für den synchronen Ablauf (Eins nach dem Anderen)
+    async function start(that) {
+      for (const entry of AllRequests) {
+        if (entry.type === "create") {
+          await FeathersSocketClient.service(entry.service)
+            .create(entry.data)
+            .catch(async err => {
+              //Feather schickt immer einen Error wenn das Sync nicht funktioniert hat
+              await that.addToResponseQueue(err);
+            });
+        } else if (entry.type == "remove") {
+          await FeathersSocketClient.service("articles")
+            .remove(entry.data._id)
+            .catch(async err => {
+              //Feather schickt immer einen Error wenn das Sync nicht funktioniert hat
+              await that.addToResponseQueue(err);
+            });
         }
-      })
-    ).then(async () => {
-      //Die Subscriber über die Ausführung informieren
-      const ReqArray = await this.requestsDB.toArray();
-
-      if (ReqArray.length < 1) {
-        //Falls in der Zwischenzeit neue Request hereingekommen sind, nicht benachrichtigen
-        //Sonst führt schnelles löschen zu Problemen
-        this.listener.notify();
       }
-    });
-  },
+    }
 
+    await start(this);
+    this.isWorking = false;
+    this.listener.notify();
+  },
   loadResponses() {
     this.responsesDB.toArray().then(result => {
       this.responses = result; //Für Update im Frontend müssen die Responses wieder in den Array geladen werden.

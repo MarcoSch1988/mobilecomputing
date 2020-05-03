@@ -65,18 +65,18 @@ const articles = {
     });
   },
   async loadOnlineData() {
+    //Prüfen ob die Queue arbeitet
+    //Wenn die Queue noch arbeitet macht das abholen keinen Sinn und verursacht unnötiges Laden
+    if (Queue.isWorking == true) return;
+
     await FeathersSocketClient.service("articles")
       .find({ query: {} })
       .then(result => {
         //Die aktuellen Daten aus der Datenbank löschen
         this.database.clear();
 
-        console.log("Result", result.data);
-
         //Die Daten vom Server in die lokale Datenbank schreiben
         this.database.bulkAdd(result.data);
-
-        console.log("Load Server-Data: Successful");
       })
       .catch(err => {
         console.log("Load Server-Data: Error", err);
@@ -93,7 +93,7 @@ const articles = {
 
   async add(newArticle) {
     //Einfacher Locking-Mechanismus
-    if (this.isLoading === true) return;
+    //Bei Add ist locking nicht sinnvoll
     this.isLoading = true;
 
     //Prüfen ob der Artikel schon vorhanden ist
@@ -163,6 +163,8 @@ const articles = {
   },
 
   async buy(item) {
+    if (navigator.onLine == false) return false;
+
     return FeathersSocketClient.service("articles")
       .patch(item._id, { status: "closed" })
       .then(async () => {
@@ -175,6 +177,8 @@ const articles = {
   },
 
   async reactivate(item) {
+    if (navigator.onLine == false) return false;
+
     return FeathersSocketClient.service("articles")
       .patch(item._id, { status: "open" })
       .then(async () => {
