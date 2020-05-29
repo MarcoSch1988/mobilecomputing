@@ -15,66 +15,58 @@
           Internetverbindung
         </h5>
         <q-list>
-          <div v-for="article in articlesWithoutOld" :key="article.id">
-            <q-expansion-item
-              v-if="article.isSelected"
-              style="border-bottom: solid 1px #CCCCCC"
-            >
-              <template v-slot:header>
-                <q-item-section>
-                  <q-item-label
-                    class="text-h6 text-primary q-ml-none"
-                    style="display: flex; justify-content: space-between"
+          <q-expansion-item
+            v-for="article in articlesWithoutOld"
+            :key="article.id"
+            expand-separator
+          >
+            <template v-slot:header>
+              <q-item-section>
+                <span class="text-h6 text-primary">
+                  {{ article.name }}
+                </span>
+                <q-item-label caption>
+                  {{ article.address.street }} -
+                  {{ article.address.distance }} m
+                </q-item-label>
+              </q-item-section>
+              <q-item-section side top class="text-caption">
+                {{ openArticles(article) }} / {{ article.items.length }}
+              </q-item-section>
+            </template>
+
+            <q-list>
+              <q-btn
+                v-for="item in article.items"
+                :key="item._id"
+                no-caps
+                dense
+                class="text-white q-pa-none q-ma-xs"
+                :class="item.status === 'open' ? 'bg-primary' : 'bg-grey-5'"
+                style="width: 100px; height:100px"
+                @click="
+                  item.status === 'open'
+                    ? boughtItem(item)
+                    : openReactivateDialog(item)
+                "
+              >
+                <div>
+                  <div
+                    class="text-h5 text-left"
+                    style="position: absolute; top:0px; left:5px;"
                   >
-                    {{ article.name }}
-                    <span class="text-caption text-grey-7"
-                      >{{ openArticles(article) }}/{{
-                        article.items.length
-                      }}</span
-                    >
-                  </q-item-label>
-                  <q-item-label caption>
-                    {{ article.address.street }} -
-                    {{ article.address.distance }} m
-                  </q-item-label>
-                </q-item-section>
-                <q-separator />
-              </template>
-              <q-list>
-                <!-- :disable="item.status === 'open' ? false : true" -->
-                <q-btn
-                  v-for="item in article.items"
-                  :key="item._id"
-                  no-caps
-                  dense
-                  class="text-white q-pa-none q-ma-xs"
-                  :class="item.status === 'open' ? 'bg-primary' : 'bg-grey-5'"
-                  style="width: 100px; height:100px"
-                  @click="
-                    item.status === 'open'
-                      ? boughtItem(item)
-                      : openReactivateDialog(item)
-                  "
-                >
-                  <div>
-                    <div
-                      class="text-h5 text-left"
-                      style="position: absolute; top:0px; left:5px;"
-                    >
-                      {{ item.text | subStr }}
-                    </div>
-                    <div
-                      class="text-caption text-center"
-                      style="max-width:100px; word-wrap: break-word;"
-                    >
-                      {{ item.text }}
-                    </div>
+                    {{ item.text | subStr }}
                   </div>
-                </q-btn>
-              </q-list>
-              <q-separator />
-            </q-expansion-item>
-          </div>
+                  <div
+                    class="text-caption text-center"
+                    style="max-width:100px; word-wrap: break-word;"
+                  >
+                    {{ item.text }}
+                  </div>
+                </div>
+              </q-btn>
+            </q-list>
+          </q-expansion-item>
         </q-list>
       </div>
       <q-dialog v-model="reactivateAlert.active" persistent>

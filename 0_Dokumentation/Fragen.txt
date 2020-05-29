@@ -1,4 +1,0 @@
-Sockets oder REST mit Intervall? Notwendig?
-Hinweis, dass offline weil es anders bei uns keinen Sinn macht --> Doppeleinkäufe
-Wir aktualisieren über Sockets die Einkaufsliste live --> Passt so?
-Welche Funktionen sonst noch notwendig?

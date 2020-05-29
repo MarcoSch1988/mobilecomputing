@@ -8,6 +8,7 @@
   "author": "Marco Schweiger",
   "private": true,
   "scripts": {
+    "start": "quasar serve --history dist/pwa",
     "serve": "quasar dev",
     "lint": "eslint --ext .js,.vue src",
     "test": "echo \"No test specified\" && exit 0"
@@ -28,7 +29,7 @@
     "uuid": "^8.0.0"
   },
   "devDependencies": {
-    "@quasar/app": "^1.0.0",
+    "@quasar/app": "^1.9.2",
     "babel-eslint": "^10.0.1",
     "eslint": "^6.8.0",
     "eslint-config-prettier": "^4.3.0",
