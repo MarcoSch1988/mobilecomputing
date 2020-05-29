@@ -6,6 +6,7 @@ Deshalb bitte die in Moodle hochgeladene Version verwenden. Diese enthält alle 
 DANKE!  
 
 EINFACHE INSTALLATION und START  
+
 0. Node.js muss am Computer installiert sein  
 1. Komplettes Verzeichnis herunterladen  
 2. install.bat ausführen und warten bis erfolgreich beendet  
