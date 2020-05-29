@@ -1,6 +1,6 @@
 # mobilecomputing
 
-VORBEMERKUNG AN LEKTOREN
+#VORBEMERKUNG AN LEKTOREN
 Aus Sicherheitsgründen fehlen die Config-Dateien mit dem MongoDB-ConnectionString
 Deshalb bitte die in Moodle hochgeladene Version verwenden. Diese enthält alle Dateien.
 DANKE!
