@@ -1,5 +1,10 @@
 # mobilecomputing
 
+VORBEMERKUNG AN LEKTOREN
+Aus Sicherheitsgründen fehlen die Config-Dateien mit dem MongoDB-ConnectionString
+Deshalb bitte die in Moodle hochgeladene Version verwenden. Diese enthält alle Dateien.
+DANKE!
+
 EINFACHE INSTALLATION und START
 
 0. Node.js muss am Computer installiert sein
