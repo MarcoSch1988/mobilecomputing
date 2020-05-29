@@ -25,8 +25,8 @@ MANUELLE INSTALLATION und START
 
 Die oben genannte Vorgehensweise ermöglicht die volle Offline-Funktionalität
 durch einen Service-Worker. Es wird dabei Clientseitig auf fertig gebuildete
-Dateien zurück. Das heißt, wenn Änderungen am Client-Code durchgeführt werden,
-muss "quasar build -m pwa" ausgeführt werden, damit die Distrubition-Dateien
+Dateien zurückgegriffen.  Das heißt, wenn Änderungen am Client-Code durchgeführt werden,
+muss "quasar build -m pwa" ausgeführt werden, damit die Distrubitions-Dateien
 neu erstellt werden.  
 Das alles ist notwendig, das mit dem normalen Development-Server, aufgrund
 von ungültigen SSL-Zertifkaten, kein Service-Worker registriert werden kann.
